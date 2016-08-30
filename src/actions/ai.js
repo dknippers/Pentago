@@ -1,10 +1,16 @@
 import { tryPlaceMarble, rotateQuadrant } from './index';
-import { getRows, getColumns, getDiagonals } from '../selectors/cellSelectors';
+import { getRows, getColumns, getDiagonals, getQuadrants } from '../selectors/cellSelectors';
 import { chunk } from '../helpers';
 import * as Constants from '../constants';
 
 // Metadata for last received state board
 let metadata = {};
+
+let cells = [];
+let quadrants = [];
+let rows = [];
+let columns = [];
+let diagonals = [];
 
 export function computeMove() {
   return (dispatch, getState) => {
@@ -12,7 +18,8 @@ export function computeMove() {
     const activePlayer = state.activePlayer;
 
     computeMetadata(state);
-    console.log(JSON.stringify(metadata, null, 2));
+
+    quadrants = getQuadrants(state.board.cells);
 
     let empty = false;
     let cellId = -1;
@@ -21,20 +28,90 @@ export function computeMove() {
       empty = state.board.cells[cellId].player == null;
     }
 
-    // Cell
-    dispatch(tryPlaceMarble(cellId, activePlayer));
+    let move = null;
+    optimalMovesInOrder.forEach(m => {
+      move = m(state);
+      if(move != null) return;
+    });
+
+    // Cell (+ random quadrant, for now)
+    // dispatch(tryPlaceMarble(cellId, activePlayer));
+    if(move) {
+      dispatch(tryPlaceMarble(move.cell, activePlayer));
+    } else {
+      dispatch(tryPlaceMarble(cellId, activePlayer));
+    }
 
     // Rotation
     // dispatch(rotateQuadrant(0, 0, true));
   }
 }
 
-function computeMetadata(state) {
-  const cells = state.board.cells;
+const optimalMovesInOrder = [
+  inCenter,
+];
 
-  const rows = getRows(cells);
-  const columns = getColumns(cells);
-  const diagonals = [];
+function rotateBoard(row, col, clockwise) {
+  // TODO
+}
+
+function inCenter(state) {
+  const { row, column, clockwise } = optimalRotation();
+
+  // Pick any of the quadrant centers of that board,
+  // preferably horizontally or vertically from
+  // on of the other centers that we already have
+  // rather than diagonally.
+  rotateBoard(row, column, clockwise);
+
+  // The center is simply the middle cell of each quadrant
+  // This assumes the quadrant size is an odd number (obviously)
+  // otherwise there is no center :-)
+  const centers = quadrants.map(q => q[Math.floor(q.length / 2)][Math.floor(q.length / 2)]);
+
+  const playerCenters = centers.filter(c => c.player === c.activePlayer);
+  const availableCenters = centers.filter(c => c.player == null);
+
+  // undoRotation?
+  // @board.undo_rotate!(*rotation)
+
+  if(availableCenters.length > 0) {
+    // Prefer a center that is horizontally or vertically
+    // from one of the centers you already have, I believe it provides
+    // more options than diagonal centers due to more rotations towards
+    // each other (4 vs 2)
+    const cells = availableCenters.filter(c => playerCenters.length === 0 || playerCenters.some(cc => c.row === cc.row || c.col === cc.col))
+
+    // Pick a random one
+    let cell = cells[Math.floor(Math.random() * cells.length)];
+
+    // If no horizontal / vertical center is available, just choose one
+    cell = cell || availableCenters[Math.floor(Math.random() * availableCenters.length)];
+
+    return {
+      cell: cell.id,
+      //rotation: rotation
+    }
+  }
+
+  // None available
+  return null;
+}
+
+function optimalRotation() {
+  return {
+    row: Math.floor(Math.random() * 2),
+    column: Math.floor(Math.random() * 2),
+    clockwise: Math.random() > 0.5
+  }
+}
+
+function computeMetadata(state) {
+  cells = state.board.cells;
+
+  rows = getRows(cells);
+  columns = getColumns(cells);
+  diagonals = [];
 
   const cellsInLine = [...rows, ...columns, ...diagonals];
 

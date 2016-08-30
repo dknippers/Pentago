@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { chunk } from '../helpers';
-import { QUADRANT_SIZE } from '../constants';
+import * as Constants from '../constants';
 
 const getCells = state => Object.keys(state).map(id => state[id]);
 
@@ -35,21 +35,36 @@ export const getDiagonals = createSelector(
   }
 )
 
-const quadrantMinAndMaxRowOrCol = rowOrCol => [ rowOrCol * QUADRANT_SIZE, (rowOrCol + 1) * QUADRANT_SIZE - 1 ];
+const quadrantMinAndMaxRowOrCol = rowOrCol => [ rowOrCol * Constants.QUADRANT_SIZE, (rowOrCol + 1) * Constants.QUADRANT_SIZE - 1 ];
 
 export const quadrantMinAndMaxRow = (row) => quadrantMinAndMaxRowOrCol(row);
 export const quadrantMinAndMaxCol = (col) => quadrantMinAndMaxRowOrCol(col);
 
-export const makeGetQuadrant = (row, col) => createSelector(
-  getSortedCells,
-  cells => {
-    const quadrant = [];
-
+function getQuadrant(row, col, cells) {
     const [ minRow, maxRow ] = quadrantMinAndMaxRow(row);
     const [ minCol, maxCol ] = quadrantMinAndMaxCol(col);
 
     const cellsOfQuadrant = cells.filter(cell => cell.row >= minRow && cell.row <= maxRow && cell.col >= minCol && cell.col <= maxCol);
 
     return chunk(cellsOfQuadrant, cell => cell.row).map(chunk => chunk[1]);
-  }
+}
+
+export const makeGetQuadrant = (row, col) => createSelector(
+  getSortedCells,
+  cells => getQuadrant(row, col, cells)
 );
+
+export const getQuadrants = createSelector(
+  getSortedCells,
+  cells => {
+    const quadrants = [];
+
+    for(let r = 0; r < Constants.NUM_QUADRANTS; r++) {
+      for(let c = 0; c < Constants.NUM_QUADRANTS; c++) {
+        quadrants.push(getQuadrant(r, c, cells));
+      }
+    }
+
+    return quadrants;
+  }
+)

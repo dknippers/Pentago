@@ -26,12 +26,15 @@ body {
 .row {
   display: flex;
   flex-direction: row;
+  justify-content: center;
 }
 
 .cell {
     width: 64px;
     height: 64px;
-    border: 1px solid #888a85;
+    /*border: 1px solid #888a85;*/
+    margin: 2px;
+    border-radius: 5%;
 }
 
 .cell > img {
@@ -39,9 +42,8 @@ body {
   vertical-align: bottom;
 }
 
-.cell.empty:hover {
-  outline: 5px outset #eeeeec;
-  cursor: pointer;
+.cell.empty {
+  border: 1px solid #888a85;
 }
 
 .cell.player-1 {
@@ -52,18 +54,61 @@ body {
     background-color: #3465a4;
 }
 
-.cell.quadrant-border-bottom {
-    box-shadow: 0 3px 5px white;
+.cell.empty {
+  background-color: transparent;
 }
 
+.cell.empty:hover {
+  cursor: pointer;
+  opacity: 0.5;
+  box-shadow: 0 0 0 2px #eeeeec;
+}
+
+.cell.empty.player-1:hover {
+  background-color: #cc0000;
+}
+
+.cell.empty.player-2:hover {
+  background-color: #3465a4;
+}
+
+.cell.quadrant-border-bottom {
+    /*box-shadow: 0 3px 4px #d3d7cf;*/
+    margin-bottom: 8px;
+}
+
+
 .cell.quadrant-border-right {
-    box-shadow: 3px 0 5px white;
+    /*box-shadow: 3px 0 4px #d3d7cf;*/
+    margin-right: 8px;
+}
+
+.cell.quadrant-border-left {
+  /*box-shadow: -3px 0 4px #d3d7cf;*/
+  margin-left: 8px;
+}
+
+.cell.quadrant-border-top {
+  /*box-shadow: 0 -3px 4px #d3d7cf;*/
+  margin-top: 8px;
 }
 
 .cell.quadrant-border-bottom.cell.quadrant-border-right {
-    box-shadow: 3px 3px 5px white;
+    /*box-shadow: 3px 3px 4px #d3d7cf;*/
+}
+
+.cell.quadrant-border-bottom.cell.quadrant-border-left {
+    /*box-shadow: -3px 3px 4px #d3d7cf;*/
+}
+
+.cell.quadrant-border-top.cell.quadrant-border-left {
+    /*box-shadow: -3px -3px 4px #d3d7cf;*/
+}
+
+.cell.quadrant-border-top.cell.quadrant-border-right {
+    /*box-shadow: 3px -3px 4px #d3d7cf;*/
 }
 
 .cell.last-move {
-    outline: 5px outset #eeeeec;
+    box-shadow: 0 0 0 2px #eeeeec;
 }
