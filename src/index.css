@@ -1,0 +1,69 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+    font-family: Consolas, monospace;
+    background-color: #2e3436;
+    color: white;
+}
+
+.game {
+  text-align: center;
+}
+
+.error {
+  padding: 10px;
+  background-color: #eeeeec;
+  color: #cc0000;
+  font-weight: bold;
+}
+
+.board {
+    margin: 20px auto;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.cell {
+    width: 64px;
+    height: 64px;
+    border: 1px solid #888a85;
+}
+
+.cell > img {
+  max-width: 60%;
+  vertical-align: bottom;
+}
+
+.cell.empty:hover {
+  outline: 5px outset #eeeeec;
+  cursor: pointer;
+}
+
+.cell.player-1 {
+    background-color: #cc0000;
+}
+
+.cell.player-2 {
+    background-color: #3465a4;
+}
+
+.cell.quadrant-border-bottom {
+    box-shadow: 0 3px 5px white;
+}
+
+.cell.quadrant-border-right {
+    box-shadow: 3px 0 5px white;
+}
+
+.cell.quadrant-border-bottom.cell.quadrant-border-right {
+    box-shadow: 3px 3px 5px white;
+}
+
+.cell.last-move {
+    outline: 5px outset #eeeeec;
+}

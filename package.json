@@ -1,0 +1,29 @@
+{
+  "name": "pentago",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "react-scripts": "0.2.3"
+  },
+  "dependencies": {
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "react-redux": "*",
+    "redux": "*",
+    "redux-undo": "*",
+    "redux-thunk": "*",
+    "redux-logger": "*",
+    "redux-devtools": "*",
+    "redux-devtools-log-monitor": "*",
+    "redux-devtools-dock-monitor": "*",
+    "reselect": "*"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/react-scripts/config/eslint.js"
+  }
+}
