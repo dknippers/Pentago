@@ -1,9 +1,9 @@
 import { computeMove } from './ai';
 
-export const TRY_PLACE_MARBLE = 'TRY_PLACE_MARBLE';
-export function tryPlaceMarble(cellId, playerId) {
+export const TRY_PICK_CELL = 'TRY_PICK_CELL';
+export function tryPickCell(cellId, playerId) {
   return (dispatch, getState) => {
-    // dispatch({ type: TRY_PLACE_MARBLE, cellId, playerId });
+    // dispatch({ type: TRY_PICK_CELL, cellId, playerId });
 
     const state = getState();
     const cell = state.board.cells[cellId];
@@ -15,26 +15,42 @@ export function tryPlaceMarble(cellId, playerId) {
     }
 
     // All good
-    dispatch(placeMarble(cellId, playerId));
+    dispatch(pickCell(cellId, playerId));
 
-    dispatch(rotateQuadrant(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2), Math.random() > 0.5));
+    //dispatch(rotateQuadrant(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2), Math.random() > 0.5));
 
     // After this, begin next turn
-    dispatch(beginTurn());
+    //dispatch(beginTurn());
   }
 }
 
-export const PLACE_MARBLE = 'PLACE_MARBLE';
-export function placeMarble(cellId, playerId) {
+export const PICK_CELL = 'PICK_CELL';
+function pickCell(cellId, playerId) {
   return {
-    type: PLACE_MARBLE,
+    type: PICK_CELL,
     cellId,
     playerId
   }
 };
 
+export const SELECT_QUADRANT = 'SELECT_QUADRANT';
+export function selectQuadrant(row, column) {
+  return {
+    type: SELECT_QUADRANT,
+    row,
+    column
+  }
+};
+
 export const ROTATE_QUADRANT = 'ROTATE_QUADRANT';
 export function rotateQuadrant(row, column, clockwise) {
+  return (dispatch, state) => {
+    dispatch(rotateQuadrantAction(row, column, clockwise));
+    dispatch(beginTurn());
+  }
+}
+
+function rotateQuadrantAction(row, column, clockwise) {
   return {
     type: ROTATE_QUADRANT,
     row,
@@ -73,7 +89,7 @@ export function hideError() {
 export const BEGIN_TURN = 'BEGIN_TURN';
 export function beginTurn() {
   return (dispatch, getState) => {
-    //dispatch({ type: BEGIN_TURN });
+    dispatch({ type: BEGIN_TURN });
 
     const state = getState();
     const player = state.players[state.activePlayer];

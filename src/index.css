@@ -23,6 +23,62 @@ body {
     margin: 20px auto;
 }
 
+.quadrants-row, .quadrant-row {
+  display: flex;
+}
+
+.quadrants-row {
+  justify-content: center;
+}
+
+.quadrant {
+  position: relative;
+}
+
+.quadrant svg.arrow {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  top: 64px;
+  display: none;
+}
+
+.quadrant.on.selected svg.arrow {
+  display: block;
+}
+
+.quadrant svg.arrow:hover {
+  cursor: pointer;
+}
+
+.quadrant svg.clockwise {
+  left: 0;
+}
+
+.quadrant svg.counter-clockwise {
+  right: 0;
+}
+
+.quadrant.on .cell {
+  opacity: 0.4;
+}
+
+.quadrant.on.selected .cell {
+  opacity: 1;
+}
+
+.quadrant.on:hover {
+  cursor: pointer;
+}
+
+.quadrant.on:hover .cell {
+  opacity: 1;
+}
+
+.quadrant.on:hover .cell:hover {
+  cursor: pointer;
+}
+
 .row {
   display: flex;
   flex-direction: row;
@@ -36,6 +92,7 @@ body {
     margin: 2px;
     border-radius: 5%;
 }
+
 
 .cell > img {
   max-width: 60%;
@@ -64,12 +121,26 @@ body {
   box-shadow: 0 0 0 2px #eeeeec;
 }
 
+.cell.empty.off:hover {
+  cursor: default;
+  opacity: 1;
+  box-shadow: none;
+}
+
 .cell.empty.player-1:hover {
   background-color: #cc0000;
 }
 
+.cell.empty.player-1.off:hover {
+  background-color: inherit;
+}
+
 .cell.empty.player-2:hover {
   background-color: #3465a4;
+}
+
+.cell.empty.player-2.off:hover {
+  background-color: inherit;
 }
 
 .cell.quadrant-border-bottom {

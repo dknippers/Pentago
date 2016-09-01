@@ -1,30 +1,25 @@
 import React from 'react';
-import { connect } from 'react-redux'
-import { tryPlaceMarble } from '../actions';
+import { connect } from 'react-redux';
+import { tryPickCell } from '../actions';
 import * as Constants from '../constants';
 import loader from '../svg/loader.svg';
 
-const Cell = ({ cell, tryPlaceMarble, activePlayerId, lastMove, isLoading }) => {
-  const canClick = !isLoading && cell.player == null;
-
+const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant }) => {
   return (
-    <div className={ getClassNames() } onClick={ canClick ? () => tryPlaceMarble(cell.id, activePlayerId) : null }>
-      <data value={ `(${ cell.row },${ cell.col }) ${ cell.player ? cell.player : null }` } />
-      { isLoading &&
-        <img src={ loader } alt="Loading ..." />
-      }
+    <div className={ getClassNames() } onClick={ canPickCell ? () => tryPickCell(cell.id, activePlayerId) : null }>
+      <data value={ `(${ cell.row },${ cell.col }) ${ cell.player ? cell.player : '' }` } />
     </div>
   );
 
   // First row/column of quadrant (but not of board)
   function isFirstRowOrColOfQuadrant(rc) {
-    return rc % Constants.QUADRANT_SIZE === 0;
+    // return rc % Constants.QUADRANT_SIZE === 0;
     return rc !== 0 && rc % Constants.QUADRANT_SIZE === 0;
   }
 
   // Last row/column of quadrant (but not last of board)
   function isLastRowOrColOfQuadrant(rc) {
-    return (rc + 1) % Constants.QUADRANT_SIZE === 0;
+    // return (rc + 1) % Constants.QUADRANT_SIZE === 0;
     return (rc + 1) % Constants.QUADRANT_SIZE === 0 && rc + 1 !== Constants.BOARD_SIZE;
   }
 
@@ -74,6 +69,10 @@ const Cell = ({ cell, tryPlaceMarble, activePlayerId, lastMove, isLoading }) => 
       classNames.push('quadrant-border-bottom');
     }
 
+    if(!canPickCell) {
+      classNames.push('off');
+    }
+
     return classNames.join(' ');
   }
 }
@@ -82,11 +81,12 @@ const mapStateToProps = (state, props) => {
     return {
       activePlayerId: state.activePlayer,
       lastMove: state.lastMove,
-      isLoading: state.cellLoading != null && state.cellLoading === props.cell.id
+      canPickCell: state.canPickCell && props.cell.player == null,
+      canRotateQuadrant: state.canRotateQuadrant
     }
   }
 
 export default connect(
   mapStateToProps,
-  { tryPlaceMarble }
+  { tryPickCell }
 )(Cell);

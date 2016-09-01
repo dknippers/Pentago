@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { chunk } from '../helpers';
+import { chunk, transpose } from '../helpers';
 import * as Constants from '../constants';
 
 const getCells = state => Object.keys(state).map(id => state[id]);
@@ -54,6 +54,7 @@ export const makeGetQuadrant = (row, col) => createSelector(
   cells => getQuadrant(row, col, cells)
 );
 
+// Returns the quadrants in an Array
 export const getQuadrants = createSelector(
   getSortedCells,
   cells => {
@@ -68,3 +69,66 @@ export const getQuadrants = createSelector(
     return quadrants;
   }
 )
+
+// Returns the quadrants in a 2D Array (i.e., in rows and columns)
+export const getQuadrants2D = createSelector(
+  getSortedCells,
+  cells => {
+    const quadrants = [];
+
+    for(let r = 0; r < Constants.NUM_QUADRANTS; r++) {
+      const row = [];
+
+      for(let c = 0; c < Constants.NUM_QUADRANTS; c++) {
+        row.push(getQuadrant(r, c, cells));
+      }
+
+      quadrants.push(row);
+    }
+
+    return quadrants;
+  }
+)
+
+function rotateClockwise(quadrant) {
+  return transpose(quadrant.reverse());
+}
+
+function rotateCounterclockwise(quadrant) {
+  return transpose(quadrant.map(row => row.reverse()));
+}
+
+function rotate(quadrant, turnClockwise) {
+  return (turnClockwise ? rotateClockwise : rotateCounterclockwise)(quadrant);
+}
+
+export const makeGetRotatedQuadrant = (row, column, clockwise) => createSelector(
+  makeGetQuadrant(row, column),
+  quadrant => {
+    // Apply rotation
+    const rotated = rotate(quadrant, clockwise);
+
+    const [ minRow, ] = quadrantMinAndMaxRow(row);
+    const [ minCol, ] = quadrantMinAndMaxCol(column);
+
+    // Return a flat object of cell id => cell,
+    // where we have updated .row and .col of each cell
+    // accordingly to its new position in the quadrant
+    // which is currently only represented by the index
+    const cells = {};
+
+    for(let irow = 0; irow < rotated.length; irow++) {
+      const row = rotated[irow];
+      for(let icol = 0; icol < row.length; icol++) {
+        const cell = rotated[irow][icol];
+
+        cells[cell.id] = Object.assign({}, cell, {
+          row: irow + minRow,
+          col: icol + minCol
+        });
+      }
+    }
+
+    return cells;
+  }
+);

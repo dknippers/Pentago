@@ -1,12 +1,13 @@
 import { combineReducers } from 'redux'
 import boardReducer from './boardReducer'
 import playersReducer from './playersReducer'
+import uiReducer from './uiReducer'
 
-import { PLACE_MARBLE, SHOW_ERROR, HIDE_ERROR } from '../actions';
+import { PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN } from '../actions';
 
 function activePlayer(state = 1, action) {
   switch(action.type) {
-    case PLACE_MARBLE:
+    case ROTATE_QUADRANT:
       return (state % 2) + 1;
 
     default: return state;
@@ -15,7 +16,7 @@ function activePlayer(state = 1, action) {
 
 function lastMove(state = null, action) {
   switch(action.type) {
-    case PLACE_MARBLE:
+    case PICK_CELL:
       return action.cellId;
 
     default: return state;
@@ -24,7 +25,7 @@ function lastMove(state = null, action) {
 
 function winner(state = null, action) {
   switch(action.type) {
-    case PLACE_MARBLE:
+    case PICK_CELL:
       return state;
 
     default: return state;
@@ -37,18 +38,32 @@ function error(state = null, action) {
       return action.error;
 
     case HIDE_ERROR:
-    case PLACE_MARBLE:
+    case PICK_CELL:
       return null;
 
     default: return state;
   }
 }
 
-function cellLoading(state = null, action) {
+function canPickCell(state = false, action) {
   switch(action.type) {
-    case(SHOW_ERROR):
-    case(PLACE_MARBLE):
-      return null;
+    case(BEGIN_TURN):
+      return true;
+
+    case(PICK_CELL):
+      return false;
+
+    default: return state;
+  }
+}
+
+function canRotateQuadrant(state = false, action) {
+  switch(action.type) {
+    case(ROTATE_QUADRANT):
+      return false;
+
+    case(PICK_CELL):
+      return true;
 
     default: return state;
   }
@@ -57,11 +72,13 @@ function cellLoading(state = null, action) {
 const rootReducer = combineReducers({
   board: boardReducer,
   players: playersReducer,
+  ui: uiReducer,
   activePlayer,
   lastMove,
   winner,
   error,
-  cellLoading
+  canPickCell,
+  canRotateQuadrant,
 });
 
 export default rootReducer;

@@ -1,16 +1,15 @@
-import { tryPlaceMarble, rotateQuadrant } from './index';
+import { tryPickCell, rotateQuadrant } from './index';
 import { getRows, getColumns, getDiagonals, getQuadrants } from '../selectors/cellSelectors';
 import { chunk } from '../helpers';
 import * as Constants from '../constants';
 
-// Metadata for last received state board
-let metadata = {};
-
-let cells = [];
-let quadrants = [];
-let rows = [];
-let columns = [];
-let diagonals = [];
+const boards = [
+  // {
+  //   cells: [],
+  //   rotation: { row: ..., column: ..., clockwise: ... },
+  //   metadata: {}
+  // }
+];
 
 export function computeMove() {
   return (dispatch, getState) => {
@@ -35,16 +34,22 @@ export function computeMove() {
     });
 
     // Cell (+ random quadrant, for now)
-    // dispatch(tryPlaceMarble(cellId, activePlayer));
+    // dispatch(tryPickCell(cellId, activePlayer));
     if(move) {
-      dispatch(tryPlaceMarble(move.cell, activePlayer));
+      dispatch(tryPickCell(move.cell, activePlayer));
     } else {
-      dispatch(tryPlaceMarble(cellId, activePlayer));
+      dispatch(tryPickCell(cellId, activePlayer));
     }
 
     // Rotation
     // dispatch(rotateQuadrant(0, 0, true));
   }
+}
+
+// Build the 9 different boards (non-rotation and 8 rotations)
+// and compute their metadata
+function initBoards() {
+
 }
 
 const optimalMovesInOrder = [
@@ -62,7 +67,7 @@ function inCenter(state) {
   // preferably horizontally or vertically from
   // on of the other centers that we already have
   // rather than diagonally.
-  rotateBoard(row, column, clockwise);
+  // rotateBoard(row, column, clockwise);
 
   // The center is simply the middle cell of each quadrant
   // This assumes the quadrant size is an odd number (obviously)
