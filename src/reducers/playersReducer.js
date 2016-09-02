@@ -1,6 +1,6 @@
 const allPlayers = [
-  { id: 1, name: 'Red', isAI: false },
-  { id: 2, name: 'Blue', isAI: false }
+  { id: 1, name: 'Red', isAI: true },
+  { id: 2, name: 'Blue', isAI: true }
 ];
 
 const playersById = allPlayers.reduce((byId, player) => (byId[player.id] = player) && byId, {});

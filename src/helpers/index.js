@@ -41,6 +41,14 @@ export function chunk(array, func) {
   }, [[]]);
 }
 
+export function groupBy(array, func) {
+  return array.reduce((grouped, element) => {
+    const key = func(element);
+    (grouped[key] || (grouped[key] = [])).push(element);
+    return grouped;
+  }, {});
+}
+
 // Ruby's Array#uniq
 export function uniq(array) {
   return array.reduce((uniques, element) => {

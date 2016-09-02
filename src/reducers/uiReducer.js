@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { SELECT_QUADRANT, ROTATE_QUADRANT } from '../actions';
+import { SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON } from '../actions';
 
 function selectedQuadrant(state = {}, action) {
   switch(action.type) {
@@ -14,8 +14,30 @@ function selectedQuadrant(state = {}, action) {
   }
 }
 
+function winningCells(state = [], action) {
+  switch(action.type) {
+    case(PLAYER_WON):
+      return action.cells;
+
+    default: return state;
+  }
+}
+
+function score(state = {}, action) {
+  switch(action.type) {
+    case(PLAYER_WON):
+      return Object.assign({}, state, {
+        [action.player]: (state[action.player] || 0) + 1
+      });
+
+    default: return state;
+  }
+}
+
 const uiReducer = combineReducers({
-  selectedQuadrant
+  selectedQuadrant,
+  winningCells,
+  score,
 });
 
 export default uiReducer;

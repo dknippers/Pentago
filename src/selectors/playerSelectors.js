@@ -1,0 +1,1 @@
+export const getPlayers = state => Object.keys(state).map(id => state[id]);

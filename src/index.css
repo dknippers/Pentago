@@ -12,6 +12,14 @@ body {
   text-align: center;
 }
 
+.game.game-over .cell {
+  opacity: 0.25;
+}
+
+.game.game-over .cell.winning {
+  opacity: 1;
+}
+
 .error {
   padding: 10px;
   background-color: #eeeeec;

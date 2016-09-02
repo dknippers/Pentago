@@ -1,4 +1,4 @@
-import { PICK_CELL, ROTATE_QUADRANT } from '../actions';
+import { PICK_CELL, ROTATE_QUADRANT, RESET_GAME } from '../actions';
 import { byId } from '../helpers';
 import { makeGetRotatedQuadrant } from '../selectors/cellSelectors';
 
@@ -18,7 +18,7 @@ for(let row = 0; row < 6; row++) {
 function cells(state = byId(allCells), action) {
 	switch(action.type) {
     case PICK_CELL:
-      let cell = state[action.cellId];
+      const cell = state[action.cellId];
 
       if(cell.player != null) {
         throw new Error(`Cell (${cell.row}, ${cell.col}) is not empty!`);
@@ -37,6 +37,9 @@ function cells(state = byId(allCells), action) {
       const rotatedQuadrant = makeGetRotatedQuadrant(row, column, clockwise)(state);
 
       return Object.assign({}, state, rotatedQuadrant);
+
+    case RESET_GAME:
+      return byId(allCells);
 
 		default: return state;
 	}

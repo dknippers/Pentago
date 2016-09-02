@@ -1,12 +1,11 @@
+import { getAvailableCells, makeIsWinner } from '../selectors/cellSelectors';
+import { getPlayers } from '../selectors/playerSelectors';
 import { computeMove } from './ai';
 
 export const TRY_PICK_CELL = 'TRY_PICK_CELL';
 export function tryPickCell(cellId, playerId) {
   return (dispatch, getState) => {
-    // dispatch({ type: TRY_PICK_CELL, cellId, playerId });
-
-    const state = getState();
-    const cell = state.board.cells[cellId];
+    const cell = getState().cells[cellId];
 
     const errorMessage = validateMove(cell, cellId, playerId);
 
@@ -14,13 +13,17 @@ export function tryPickCell(cellId, playerId) {
       return dispatch(showError(errorMessage));
     }
 
-    // All good
+    // Cell
     dispatch(pickCell(cellId, playerId));
 
-    //dispatch(rotateQuadrant(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2), Math.random() > 0.5));
+    if(!checkWinner(dispatch, getState)) {
+      // Rotation
+      dispatch(rotateQuadrant(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2), Math.random() > 0.5));
 
-    // After this, begin next turn
-    //dispatch(beginTurn());
+      if(!checkWinner(dispatch, getState)) {
+        dispatch(beginTurn());
+      }
+    }
   }
 }
 
@@ -33,6 +36,64 @@ function pickCell(cellId, playerId) {
   }
 };
 
+function checkWinner(dispatch, getState) {
+  const players = getPlayers(getState().players);
+
+  for(let i = 0; i < players.length; i++) {
+    const player = players[i];
+    const winningCells = makeIsWinner(player.id)(getState().cells);
+
+    if(winningCells) {
+      dispatch(playerWon(player.id, winningCells));
+
+      setTimeout(() => dispatch(resetGame()), 2000);
+
+      return true;
+    }
+  }
+
+  // Full board, no winner => draw
+  const availableCells = getAvailableCells(getState().cells);
+  if(availableCells.length === 0) {
+    dispatch(draw());
+    setTimeout(() => dispatch(resetGame()), 2000);
+    return true;
+  }
+
+  return false;
+}
+
+export const DRAW = 'DRAW';
+function draw() {
+  return {
+    type: DRAW
+  };
+}
+
+export const PLAYER_WON = 'PLAYER_WON'
+function playerWon(player, cells) {
+  return {
+    type: PLAYER_WON,
+    player,
+    cells
+  }
+}
+
+export const RESET_GAME = 'RESET_GAME';
+export function resetGame() {
+  return (dispatch, state) => {
+    dispatch(resetGameAction());
+    dispatch(beginTurn());
+  }
+}
+
+function resetGameAction() {
+  return {
+    type: RESET_GAME
+  };
+}
+
+
 export const SELECT_QUADRANT = 'SELECT_QUADRANT';
 export function selectQuadrant(row, column) {
   return {
@@ -44,9 +105,8 @@ export function selectQuadrant(row, column) {
 
 export const ROTATE_QUADRANT = 'ROTATE_QUADRANT';
 export function rotateQuadrant(row, column, clockwise) {
-  return (dispatch, state) => {
+  return (dispatch, getState) => {
     dispatch(rotateQuadrantAction(row, column, clockwise));
-    dispatch(beginTurn());
   }
 }
 
@@ -89,14 +149,16 @@ export function hideError() {
 export const BEGIN_TURN = 'BEGIN_TURN';
 export function beginTurn() {
   return (dispatch, getState) => {
-    dispatch({ type: BEGIN_TURN });
+    setTimeout(() => {
+      dispatch({ type: BEGIN_TURN });
 
-    const state = getState();
-    const player = state.players[state.activePlayer];
+      const state = getState();
+      const player = state.players[state.activePlayer];
 
-    if(!player || !player.isAI) return;
+      if(!player || !player.isAI) return;
 
-    // AI => compute its move
-    dispatch(computeMove(dispatch, getState));
+      // AI => compute its move
+      dispatch(computeMove(dispatch, getState));
+    }, 50);
   }
 }

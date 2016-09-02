@@ -46,7 +46,7 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
 
 const mapStateToProps = (state, props) => {
   return {
-    canRotateQuadrant: state.canRotateQuadrant,
+    canRotateQuadrant: !state.draw && state.canRotateQuadrant,
     isSelected: state.ui.selectedQuadrant.row === props.row && state.ui.selectedQuadrant.column === props.column
   }
 }

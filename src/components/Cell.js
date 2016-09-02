@@ -2,9 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { tryPickCell } from '../actions';
 import * as Constants from '../constants';
-import loader from '../svg/loader.svg';
 
-const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant }) => {
+const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant, isWinningCell }) => {
   return (
     <div className={ getClassNames() } onClick={ canPickCell ? () => tryPickCell(cell.id, activePlayerId) : null }>
       <data value={ `(${ cell.row },${ cell.col }) ${ cell.player ? cell.player : '' }` } />
@@ -73,6 +72,10 @@ const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRot
       classNames.push('off');
     }
 
+    if(isWinningCell) {
+      classNames.push('winning');
+    }
+
     return classNames.join(' ');
   }
 }
@@ -81,8 +84,9 @@ const mapStateToProps = (state, props) => {
     return {
       activePlayerId: state.activePlayer,
       lastMove: state.lastMove,
-      canPickCell: state.canPickCell && props.cell.player == null,
-      canRotateQuadrant: state.canRotateQuadrant
+      canPickCell: !state.draw && state.canPickCell && props.cell.player == null,
+      canRotateQuadrant: !state.draw && state.canRotateQuadrant,
+      isWinningCell: state.ui.winningCells.some(cell => cell.id === props.cell.id)
     }
   }
 

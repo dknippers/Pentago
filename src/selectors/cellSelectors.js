@@ -1,8 +1,14 @@
 import { createSelector } from 'reselect';
-import { chunk, transpose } from '../helpers';
+import { chunk, transpose, groupBy } from '../helpers';
+import { getPlayers } from './playerSelectors';
 import * as Constants from '../constants';
 
 const getCells = state => Object.keys(state).map(id => state[id]);
+
+export const getAvailableCells = createSelector(
+  getCells,
+  cells => cells.filter(cell => cell.player == null)
+);
 
 const getSortedCells = createSelector(
   getCells,
@@ -30,10 +36,55 @@ export const getColumns = createSelector(
 export const getDiagonals = createSelector(
   getSortedCells,
   cells => {
-    // TODO
-    return [];
+    const topLeftToBottomRight = groupBy(cells, cell => cell.row - cell.col);
+    const bottomLeftToTopRight = groupBy(cells, cell => cell.row + cell.col);
+
+    return [
+      topLeftToBottomRight,
+      bottomLeftToTopRight
+    ].reduce((diagonals, collectionOfDiagonals) => {
+      for(let key of Object.keys(collectionOfDiagonals)) {
+        const diagonal = collectionOfDiagonals[key];
+        diagonals.push(diagonal);
+      }
+      return diagonals;
+    }, []);
   }
 )
+
+function winningCellsInLines(lines, player) {
+  for(let line of lines) {
+    const winningCells = winsInLine(line, player);
+    if(winningCells) return winningCells;
+  }
+}
+
+const makeWinsInRow = player => createSelector(
+  getRows,
+  rows => winningCellsInLines(rows, player)
+);
+
+const makeWinsInColumn = player => createSelector(
+  getColumns,
+  columns => winningCellsInLines(columns, player)
+)
+
+const makeWinsInDiagonal = player => createSelector(
+  getDiagonals,
+  diagonals => winningCellsInLines(diagonals, player)
+)
+
+export const makeIsWinner = player => createSelector(
+  getCells,
+  cells => makeWinsInRow(player)(cells) || makeWinsInColumn(player)(cells) || makeWinsInDiagonal(player)(cells)
+)
+
+function winsInLine(line, player) {
+  return chunk(line, cell => cell.player === player)
+    .filter(chunk => chunk[0])
+    .map(chunk => chunk[1])
+    .find(cells => cells.length >= Constants.AMOUNT_IN_LINE_TO_WIN)
+}
 
 const quadrantMinAndMaxRowOrCol = rowOrCol => [ rowOrCol * Constants.QUADRANT_SIZE, (rowOrCol + 1) * Constants.QUADRANT_SIZE - 1 ];
 

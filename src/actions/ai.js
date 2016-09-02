@@ -1,5 +1,5 @@
 import { tryPickCell, rotateQuadrant } from './index';
-import { getRows, getColumns, getDiagonals, getQuadrants } from '../selectors/cellSelectors';
+import { getRows, getColumns, getDiagonals, getQuadrants, getAvailableCells } from '../selectors/cellSelectors';
 import { chunk } from '../helpers';
 import * as Constants from '../constants';
 
@@ -16,30 +16,32 @@ export function computeMove() {
     const state = getState();
     const activePlayer = state.activePlayer;
 
-    computeMetadata(state);
+    // computeMetadata(state);
 
-    quadrants = getQuadrants(state.board.cells);
+    // quadrants = getQuadrants(state.cells);
 
-    let empty = false;
-    let cellId = -1;
-    while(!empty || cellId < 0) {
-      cellId = Math.floor(Math.random() * 36);
-      empty = state.board.cells[cellId].player == null;
-    }
+    const cells = getAvailableCells(state.cells);
+    if(cells.length === 0) return;
+
+    let cellId = cells[Math.floor(Math.random() * cells.length)].id;
 
     let move = null;
-    optimalMovesInOrder.forEach(m => {
-      move = m(state);
-      if(move != null) return;
-    });
+    // optimalMovesInOrder.forEach(m => {
+    //   move = m(state);
+    //   if(move != null) return;
+    // });
 
     // Cell (+ random quadrant, for now)
     // dispatch(tryPickCell(cellId, activePlayer));
-    if(move) {
-      dispatch(tryPickCell(move.cell, activePlayer));
-    } else {
-      dispatch(tryPickCell(cellId, activePlayer));
-    }
+    // if(move) {
+    //   dispatch(tryPickCell(move.cell, activePlayer));
+    // }
+
+    // else {
+    //
+    // }
+
+    dispatch(tryPickCell(cellId, activePlayer));
 
     // Rotation
     // dispatch(rotateQuadrant(0, 0, true));
@@ -112,7 +114,7 @@ function optimalRotation() {
 }
 
 function computeMetadata(state) {
-  cells = state.board.cells;
+  cells = state.cells;
 
   rows = getRows(cells);
   columns = getColumns(cells);
