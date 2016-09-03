@@ -93,6 +93,16 @@ function canRotateQuadrant(state = false, action) {
   }
 }
 
+function scores(state = {}, action) {
+  switch(action.type) {
+    case BEGIN_TURN:
+      // TODO
+      return state;
+
+    default: return state;
+  }
+}
+
 const rootReducer = combineReducers({
   cells: cellsReducer,
   players: playersReducer,
@@ -103,7 +113,8 @@ const rootReducer = combineReducers({
   draw,
   error,
   canPickCell,
-  canRotateQuadrant
+  canRotateQuadrant,
+  scores
 });
 
 export default rootReducer;

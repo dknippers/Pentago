@@ -1,5 +1,8 @@
 import { tryPickCell, rotateQuadrant } from './index';
-import { getRows, getColumns, getDiagonals, getQuadrants, getAvailableCells, makeGetRotatedQuadrant, makeGetMetadata } from '../selectors/cellSelectors';
+import {
+  getRows, getColumns, getDiagonals, getQuadrants, getAvailableCells,
+  makeGetRotatedQuadrant, getMetadata, makeGetBoardScore
+} from '../selectors/cellSelectors';
 import { getPlayers, makeGetCurrentPlayer, makeGetNextPlayer } from '../selectors/playerSelectors';
 import { chunk } from '../helpers';
 import * as Constants from '../constants';
@@ -14,22 +17,22 @@ const boards = [
 
 let currentPlayer;
 let nextPlayer;
+let getBoardScore;
 
 export function computeMove() {
   return (dispatch, getState) => {
     const state = getState();
 
-    currentPlayer = makeGetCurrentPlayer(state.activePlayer)(state.players);
-    nextPlayer = makeGetNextPlayer(state.activePlayer)(state.players);
+    currentPlayer = makeGetCurrentPlayer(state.activePlayer)(state);
+    nextPlayer = makeGetNextPlayer(state.activePlayer)(state);
 
     initBoards(getState);
 
     let moveData = null;
     for(let moveFunction of optimalMovesInOrder) {
-      moveData = moveFunction();
+      moveData = moveFunction(getState);
       if(moveData != null) break;
     }
-
     const { cell, rotation } = moveData;
 
     if(cell != null) {
@@ -37,6 +40,7 @@ export function computeMove() {
 
       if(!gameOver && rotation != null) {
         const { row, column, clockwise } = rotation;
+
         // Rotation (only if we haven't won by placing the cell)
         dispatch(rotateQuadrant(row, column, clockwise));
       }
@@ -65,18 +69,21 @@ function initBoards(getState) {
 
 function initBoard(getState, rotation) {
   const state = getState();
-  const players = getPlayers(state.players);
 
   let cells;
 
   if(rotation) {
-    const rotatedCells = makeGetRotatedQuadrant(rotation.row, rotation.column, rotation.clockwise)(state.cells);
+    const rotatedCells = makeGetRotatedQuadrant(rotation.row, rotation.column, rotation.clockwise)(state);
     cells = Object.assign({}, state.cells, rotatedCells);
   } else {
     cells = Object.assign({}, state.cells);
   }
 
-  const metadata = computeMetadata(cells, players);
+  const newState = Object.assign({}, state, {
+    cells: Object.assign({}, state.cells, cells)
+  });
+
+  const metadata = computeMetadata(() => newState);
 
   return {
     cells,
@@ -102,11 +109,11 @@ function getBoard(rotation) {
     ));
 }
 
-function inCenter(player = null) {
+function inCenter(getState, player = currentPlayer.id) {
   const rotation = optimalRotation();
 
   const board = getBoard(rotation)
-  const quadrants = getQuadrants(board.cells);
+  const quadrants = getQuadrants({ cells: board.cells });
 
   // Pick any of the quadrant centers of that board,
   // preferably horizontally or vertically from
@@ -152,7 +159,7 @@ function randomAvailableCell() {
 function randomCell() {
   const rotation = optimalRotation();
   const board = getBoard(rotation);
-  const cells = getAvailableCells(board.cells);
+  const cells = getAvailableCells({ cells: board.cells });
   if(cells.length === 0) return;
   const cell = cells[Math.floor(Math.random() * cells.length)];
 
@@ -176,6 +183,6 @@ function optimalRotation() {
   }
 }
 
-function computeMetadata(cells, players) {
-  return makeGetMetadata(players)(cells);
+function computeMetadata(getState) {
+  return getMetadata(getState());
 }

@@ -1,4 +1,4 @@
-import { getAvailableCells, makeIsWinner } from '../selectors/cellSelectors';
+import { getAvailableCells, getWinningCellsByPlayer } from '../selectors/cellSelectors';
 import { getPlayers } from '../selectors/playerSelectors';
 import { computeMove } from './ai';
 
@@ -30,11 +30,11 @@ function pickCell(cellId, playerId) {
 };
 
 function checkWinner(dispatch, getState, checkDraw) {
-  const players = getPlayers(getState().players);
+  const players = getPlayers(getState());
+  const winningCellsByPlayer = getWinningCellsByPlayer(getState());
 
-  for(let i = 0; i < players.length; i++) {
-    const player = players[i];
-    const winningCells = makeIsWinner(player.id)(getState().cells);
+  for(let player of players) {
+    const winningCells = winningCellsByPlayer[player.id];
 
     if(winningCells) {
       dispatch(playerWon(player.id, winningCells));
@@ -47,7 +47,7 @@ function checkWinner(dispatch, getState, checkDraw) {
 
   // Full board, no winner => draw
   if(checkDraw) {
-    const availableCells = getAvailableCells(getState().cells);
+    const availableCells = getAvailableCells(getState());
     if(availableCells.length === 0) {
       dispatch(draw());
       setTimeout(() => dispatch(resetGame()), 2000);

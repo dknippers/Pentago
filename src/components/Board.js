@@ -32,8 +32,8 @@ const Board = ({ quadrants, rows, players, disableCells, enableQuadrants }) => {
 export default connect(
   (state) => {
     return {
-      rows: getRows(state.cells),
-      quadrants: getQuadrants2D(state.cells),
+      rows: getRows(state),
+      quadrants: getQuadrants2D(state),
       players: state.players,
       disableCells: state.gameOver || !state.canPickCell,
       enableQuadrants: !state.gameOver && state.canRotateQuadrant

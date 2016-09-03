@@ -34,7 +34,7 @@ function cells(state = byId(allCells), action) {
       const { row, column, clockwise } = action;
 
       // These are just the changed cells of the quadrant
-      const rotatedQuadrant = makeGetRotatedQuadrant(row, column, clockwise)(state);
+      const rotatedQuadrant = makeGetRotatedQuadrant(row, column, clockwise)({ cells: state });
 
       return Object.assign({}, state, rotatedQuadrant);
 

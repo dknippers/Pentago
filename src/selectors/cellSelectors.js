@@ -3,7 +3,14 @@ import { chunk, transpose, groupBy } from '../helpers';
 import { getPlayers } from './playerSelectors';
 import * as Constants from '../constants';
 
-const getCells = state => Object.keys(state).map(id => state[id]);
+// The input for all other selectors, make sure this *only* yields
+// a new object when the relevant state has actually changed
+const initCells = state => state.cells;
+
+const getCells = createSelector(
+  initCells,
+  cellsById => Object.keys(cellsById).map(id => cellsById[id])
+)
 
 export const getAvailableCells = createSelector(
   getCells,
@@ -52,31 +59,31 @@ export const getDiagonals = createSelector(
   }
 )
 
-function winningCellsInLines(lines, player) {
+function findWinningCellsInLines(lines, player) {
+  if(!player) return false;
+
   for(let line of lines) {
     const winningCells = winsInLine(line, player);
     if(winningCells) return winningCells;
   }
 }
 
-const makeWinsInRow = player => createSelector(
+export const getWinningCellsByPlayer = createSelector(
   getRows,
-  rows => winningCellsInLines(rows, player)
-);
-
-const makeWinsInColumn = player => createSelector(
   getColumns,
-  columns => winningCellsInLines(columns, player)
-)
-
-const makeWinsInDiagonal = player => createSelector(
   getDiagonals,
-  diagonals => winningCellsInLines(diagonals, player)
-)
+  getPlayers,
+  (rows, columns, diagonals, players) => {
+    const winningCellsByPlayer = {};
 
-export const makeIsWinner = player => createSelector(
-  getCells,
-  cells => makeWinsInRow(player)(cells) || makeWinsInColumn(player)(cells) || makeWinsInDiagonal(player)(cells)
+    const lines = [...rows, ...columns, ...diagonals];
+
+    for(let player of players) {
+      winningCellsByPlayer[player.id] = findWinningCellsInLines(lines, player.id);
+    }
+
+    return winningCellsByPlayer;
+  }
 )
 
 function winsInLine(line, player) {
@@ -185,29 +192,29 @@ export const makeGetRotatedQuadrant = (row, column, clockwise) => createSelector
   }
 );
 
-export const makeGetMetadata = players => createSelector(
-  getCells,
-  cells => {
-    const rows = getRows(cells);
-    const columns = getColumns(cells);
-    const diagonals = getDiagonals(cells);
-
+export const getMetadata = createSelector(
+  getPlayers,
+  getRows,
+  getColumns,
+  getDiagonals,
+  (players, rows, columns, diagonals) => {
     const cellsInLine = [...rows, ...columns, ...diagonals];
     const metadata = {};
 
-    players.forEach(player => {
+    for(let player of players) {
       const potentials = {};
-      cellsInLine.forEach(line => {
-        const potentialAmountInLine = computePotentialsInLine(line, player);
-        if(!potentialAmountInLine) return;
 
-        potentialAmountInLine.forEach(group => {
+      for(let line of cellsInLine) {
+        const potentialAmountInLine = computePotentialsInLine(line, player);
+        if(!potentialAmountInLine) continue;
+
+        for(let group of potentialAmountInLine) {
           (potentials[group.length] || (potentials[group.length] = [])).push(group);
-        });
-      });
+        }
+      }
 
       metadata[player.id] = potentials;
-    });
+    }
 
     return metadata;
   }
@@ -309,6 +316,68 @@ function maxAdjacentsInLine(line, player) {
   return chunks.map(chunk => chunk[1]).reduce((max, chunk) => chunk && chunk.length > max ? chunk.length : max, 0);
 }
 
-export const makeGetBoardScore = player => createSelector(
+function scoreForPlayer(metadata, player) {
+  const scoreSystem = {
+    [2]: 1,
+    [3]: 10,
+    [4]: 25,
+    [5]: 1000,
+    [6]: 1000,
 
+    fillQuadrantMultiplier: 4
+  };
+
+  const score = {
+    points: 0,
+    wins: false
+  };
+
+  const keys = Object.keys(metadata[player.id]);
+  for(let n of keys) {
+    const base = scoreSystem[n];
+
+    const chunkedCells = metadata[player.id][n];
+
+    for(let group of chunkedCells) {
+      let multiplier = 1;
+
+      const emptyCell = group.find(cell => cell.player == null);
+      const numQuadrants = Constants.NUM_QUADRANTS;
+      const cellsByQuadrant = chunk(group, cell => (cell.row % numQuadrants) + (cell.col % numQuadrants)).map(chunk => chunk[1]);
+      const longestLine = maxElement(cellsByQuadrant, cells => cells.length);
+      const completesQuadrant = longestLine.length >= Constants.QUADRANT_SIZE && longestLine.indexOf(emptyCell) > -1;
+
+      if(completesQuadrant) {
+        multiplier = scoreSystem.fillQuadrantMultiplier;
+      }
+
+      score.points += base * multiplier;
+    }
+  }
+
+  return score;
+}
+
+export const getBoardScorePerPlayer = createSelector(
+  getMetadata,
+  getPlayers,
+  (metadata, players) => {
+    const playerScores = {};
+
+    for(let player of players) {
+      playerScores[player.id] = scoreForPlayer(player);
+    }
+
+    // This is a 2 player game
+    const playerOne = players[0];
+    const playerTwo = players[1];
+
+    const playerOnePoints = playerScores[playerOne.id];
+    const playerTwoPoints = playerScores[playerTwo.id];
+
+    return {
+      [playerOne.id]: playerOnePoints - playerTwoPoints,
+      [playerTwo.id]: playerTwoPoints - playerOnePoints,
+    }
+  }
 )

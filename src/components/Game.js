@@ -44,7 +44,7 @@ const mapStateToProps = (state) => {
     winner: state.players[state.winner],
     draw: state.draw,
     error: state.error,
-    players: getPlayers(state.players),
+    players: getPlayers(state),
     score: state.ui.score
   }
 }
