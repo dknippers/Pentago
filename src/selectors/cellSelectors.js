@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { chunk, transpose, groupBy } from '../helpers';
+import { chunk, transpose, groupBy, maxElement } from '../helpers';
 import { getPlayers } from './playerSelectors';
 import * as Constants from '../constants';
 
@@ -234,7 +234,7 @@ function computePotentialsInLine(line, player) {
 
     const firstCell = cells[0];
     const firstIdx = line.indexOf(firstCell)
-    const last_cell = cells[cells.length - 1];
+    const lastCell = cells[cells.length - 1];
 
     const isLastAndEmpty = isEmpty && chunks.indexOf(chunk) === chunks.length - 1;
 
@@ -281,11 +281,11 @@ function computePotentialsInLine(line, player) {
               groups.push([ ...prevGroup.slice(emptyIdx + 1), firstCell]);
             }
 
-            // We only add ourselves when firstCell is different from last_cell
-            // If firstCell is the same as last_cell, the next group can just join
+            // We only add ourselves when firstCell is different from lastCell
+            // If firstCell is the same as lastCell, the next group can just join
             // us in the previous group.
             // Again, do not add ourselves if we are the last group and empty
-            if(firstCell !== last_cell && !isLastAndEmpty) {
+            if(firstCell !== lastCell && !isLastAndEmpty) {
               groups.push(cells);
             }
           }
@@ -294,7 +294,9 @@ function computePotentialsInLine(line, player) {
           // Try to join a previous player-controlled group
           // It can have most have 1 empty cell but that's fine
           if(prevGroup.some(cell => cell.player != null)) {
-            prevGroup.concat(cells)
+            for(let cell of cells) {
+              prevGroup.push(cell);
+            }
           } else {
             // Previous group is entirely empty
             // Grab their last cell and discard the rest
@@ -322,7 +324,7 @@ function scoreForPlayer(metadata, player) {
     [3]: 10,
     [4]: 25,
     [5]: 1000,
-    [6]: 1000,
+    [6]: 10000,
 
     fillQuadrantMultiplier: 4
   };
@@ -351,29 +353,29 @@ function scoreForPlayer(metadata, player) {
         multiplier = scoreSystem.fillQuadrantMultiplier;
       }
 
-      score.points += base * multiplier;
+      score.points = score.points + base * multiplier;
     }
   }
 
   return score;
 }
 
-export const getBoardScorePerPlayer = createSelector(
+export const getBoardScoreByPlayer = createSelector(
   getMetadata,
   getPlayers,
   (metadata, players) => {
     const playerScores = {};
 
     for(let player of players) {
-      playerScores[player.id] = scoreForPlayer(player);
+      playerScores[player.id] = scoreForPlayer(metadata, player);
     }
 
     // This is a 2 player game
     const playerOne = players[0];
     const playerTwo = players[1];
 
-    const playerOnePoints = playerScores[playerOne.id];
-    const playerTwoPoints = playerScores[playerTwo.id];
+    const playerOnePoints = playerScores[playerOne.id].points;
+    const playerTwoPoints = playerScores[playerTwo.id].points;
 
     return {
       [playerOne.id]: playerOnePoints - playerTwoPoints,

@@ -1,4 +1,4 @@
-import { getAvailableCells, getWinningCellsByPlayer } from '../selectors/cellSelectors';
+import { getAvailableCells, getWinningCellsByPlayer, getBoardScoreByPlayer } from '../selectors/cellSelectors';
 import { getPlayers } from '../selectors/playerSelectors';
 import { computeMove } from './ai';
 
@@ -16,7 +16,17 @@ export function tryPickCell(cellId, playerId) {
 
     // Cell
     dispatch(pickCell(cellId, playerId));
-    return checkWinner(dispatch, getState);
+
+    // Score
+    const scores = getBoardScoreByPlayer(getState());
+    dispatch(updateScores(scores));
+
+    //return checkWinner(dispatch, getState);
+    const winner = checkWinner(dispatch, getState);
+
+    dispatch(beginTurn());
+
+    return winner;
   }
 }
 
@@ -103,6 +113,11 @@ export const ROTATE_QUADRANT = 'ROTATE_QUADRANT';
 export function rotateQuadrant(row, column, clockwise) {
   return (dispatch, getState) => {
     dispatch(rotateQuadrantAction(row, column, clockwise));
+
+    // Scores
+    const scores = getBoardScoreByPlayer(getState());
+    dispatch(updateScores(scores));
+
     const winningRotation = checkWinner(dispatch, getState, true);
 
     if(!winningRotation) {
@@ -162,6 +177,14 @@ export function beginTurn() {
 
       // AI => compute its move
       dispatch(computeMove(dispatch, getState));
-    }, 50);
+    }, 2500);
+  }
+}
+
+export const UPDATE_SCORES = 'UPDATE_SCORES';
+export function updateScores(scores) {
+  return {
+    type: UPDATE_SCORES,
+    scores
   }
 }

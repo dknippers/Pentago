@@ -1,10 +1,10 @@
 import { tryPickCell, rotateQuadrant } from './index';
 import {
   getRows, getColumns, getDiagonals, getQuadrants, getAvailableCells,
-  makeGetRotatedQuadrant, getMetadata, makeGetBoardScore
+  makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
 } from '../selectors/cellSelectors';
 import { getPlayers, makeGetCurrentPlayer, makeGetNextPlayer } from '../selectors/playerSelectors';
-import { chunk } from '../helpers';
+import { chunk, maxElement } from '../helpers';
 import * as Constants from '../constants';
 
 const boards = [
@@ -30,6 +30,7 @@ export function computeMove() {
 
     let moveData = null;
     for(let moveFunction of optimalMovesInOrder) {
+      console.log(`Trying ${moveFunction.name}`);
       moveData = moveFunction(getState);
       if(moveData != null) break;
     }
@@ -37,6 +38,8 @@ export function computeMove() {
 
     if(cell != null) {
       const gameOver = dispatch(tryPickCell(cell, currentPlayer.id));
+
+      return;
 
       if(!gameOver && rotation != null) {
         const { row, column, clockwise } = rotation;
@@ -94,6 +97,7 @@ function initBoard(getState, rotation) {
 
 const optimalMovesInOrder = [
   inCenter,
+  makeLine,
   randomAvailableCell
 ];
 
@@ -107,6 +111,102 @@ function getBoard(rotation) {
       board.rotation.column === column &&
       board.rotation.clockwise === clockwise
     ));
+}
+
+function makeLine(getState, player = currentPlayer, min = 2, requiresFullQuadrant = false) {
+  let optimal = {
+    score: null,
+    cell: null,
+    rotation: null
+  }
+
+  for(let board of boards) {
+    let rotation = board.rotation;
+
+    // Only look at rotations
+    if(!rotation) continue;
+
+    let meta = board.metadata[player.id];
+
+    if(requiresFullQuadrant) {
+      // Filter out any potential cells that
+      // do not at least fill a quadrant
+      const keys = Object.keys(meta);
+      const newMeta = {};
+
+      const numQuadrants = Constants.NUM_QUADRANTS;
+
+      for(let key of keys) {
+        const potentials = meta[key];
+
+        for(let group of potentials) {
+          const emptyCell = group.find(cell => cell.player == null);
+          const cells = maxElement(chunk(group, cell => cell.row % numQuadrants + cell.col % numQuadrants).map(chunk => chunk[1]), cells => cells.length);
+
+          // Fills a quadrant? Then we include it
+          if(cells.length >= Constants.QUADRANT_SIZE && cells.indexOf(emptyCell) > -1) {
+            (newMeta[key] || (newMeta[key] = [])).push(group)
+          }
+        }
+      }
+
+      meta = newMeta;
+    }
+
+    const key = maxElement(Object.keys(meta).filter(key => key >= min));
+    let cell = null;
+    let cells = null;
+    if(key) {
+      cells = maxElement(meta[key], group => {
+        const emptyCell = group.find(cell => cell.player == null);
+
+        const state = getState();
+        const newState = Object.assign({}, state, {
+          cells: Object.assign({}, state.cells, {
+            [emptyCell.id]: Object.assign({}, state.cells[emptyCell.id], {
+              player: player.id
+            })
+          })
+        });
+
+        return getBoardScoreByPlayer(newState);
+      });
+
+      cell = cells.find(cell => cell.player == null);
+    }
+
+    if(cell) {
+      const state = getState();
+      const newState = Object.assign({}, state, {
+        cells: Object.assign({}, state.cells, {
+          [cell.id]: Object.assign({}, state.cells[cell.id], {
+            player: player.id
+          })
+        })
+      });
+      const score = getBoardScoreByPlayer(newState);
+
+      // TODO
+      // if(requiresFullQuadrant && cells && cells.length === Constants.QUADRANT_SIZE) {
+      //   rotation = optimalRotation(cell);
+      // }
+
+      if(optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5)) {
+        optimal = {
+          cell: cell.id,
+          score,
+          rotation
+        }
+      }
+    }
+  }
+
+  if(optimal.cell) {
+    return {
+      cell: optimal.cell,
+      rotation: optimal.rotation
+    }
+  }
 }
 
 function inCenter(getState, player = currentPlayer.id) {

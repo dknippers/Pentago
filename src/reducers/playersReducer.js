@@ -1,9 +1,11 @@
+import { byId } from '../helpers';
+
 const allPlayers = [
   { id: 1, name: 'Red', isAI: true },
-  { id: 2, name: 'Blue', isAI: true }
+  { id: 2, name: 'Blue', isAI: false }
 ];
 
-const playersById = allPlayers.reduce((byId, player) => (byId[player.id] = player) && byId, {});
+export const initialState = byId(allPlayers);
 
 // Nothing to reduce right now
-export default (state = playersById, action) => state
+export default (state = initialState, action) => state

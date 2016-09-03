@@ -15,7 +15,9 @@ for(let row = 0; row < 6; row++) {
 	}
 }
 
-function cells(state = byId(allCells), action) {
+export const initialState = byId(allCells);
+
+function cells(state = initialState, action) {
 	switch(action.type) {
     case PICK_CELL:
       const cell = state[action.cellId];

@@ -1,11 +1,32 @@
 import { combineReducers } from 'redux';
-import cellsReducer from './cellsReducer';
-import playersReducer from './playersReducer';
+import cellsReducer, { initialState as cellsInitialState } from './cellsReducer';
+import playersReducer, { initialState as playersInitialState } from './playersReducer';
 import uiReducer from './uiReducer';
-import { getAvailableCells } from '../selectors/cellSelectors';
-import { PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN, PLAYER_WON, DRAW, RESET_GAME } from '../actions';
+import { getAvailableCells, getBoardScoreByPlayer } from '../selectors/cellSelectors';
+import {
+  PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN, PLAYER_WON, DRAW, RESET_GAME,
+  UPDATE_SCORES
+} from '../actions';
+
+const rootReducer = combineReducers({
+  cells: cellsReducer,
+  players: playersReducer,
+  ui: uiReducer,
+  activePlayer,
+  lastMove,
+  winner,
+  gameOver,
+  error,
+  canPickCell,
+  canRotateQuadrant,
+  scores
+});
+
+export default rootReducer;
 
 function activePlayer(state = 1, action) {
+  return 1;
+
   switch(action.type) {
     case ROTATE_QUADRANT:
       return (state % 2) + 1;
@@ -41,7 +62,7 @@ function winner(state = null, action) {
   }
 }
 
-function draw(state = false, action) {
+function gameOver(state = false, action) {
   switch(action.type) {
     case PLAYER_WON:
     case DRAW:
@@ -81,6 +102,8 @@ function canPickCell(state = false, action) {
 }
 
 function canRotateQuadrant(state = false, action) {
+  return false;
+
   switch(action.type) {
     case(ROTATE_QUADRANT):
     case(RESET_GAME):
@@ -95,26 +118,12 @@ function canRotateQuadrant(state = false, action) {
 
 function scores(state = {}, action) {
   switch(action.type) {
-    case BEGIN_TURN:
-      // TODO
-      return state;
+    case(UPDATE_SCORES):
+      return action.scores;
+
+    case(RESET_GAME):
+      return {};
 
     default: return state;
   }
 }
-
-const rootReducer = combineReducers({
-  cells: cellsReducer,
-  players: playersReducer,
-  ui: uiReducer,
-  activePlayer,
-  lastMove,
-  winner,
-  draw,
-  error,
-  canPickCell,
-  canRotateQuadrant,
-  scores
-});
-
-export default rootReducer;
