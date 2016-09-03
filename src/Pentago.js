@@ -5,7 +5,8 @@ import DevTools from './components/DevTools';
 const Pentago = () => (
   <div>
     <Game />
-    { // <DevTools />
+    {
+      <DevTools />
     }
   </div>
 )

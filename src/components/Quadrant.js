@@ -4,37 +4,32 @@ import Cell from '../components/Cell';
 import { rotateQuadrant, selectQuadrant } from '../actions';
 import clockwise from '../svg/clockwise.svg';
 import counterClockwise from '../svg/counter-clockwise.svg';
+import Isvg from 'react-inlinesvg';
+import { makeArrow } from './Arrow';
 
 const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant }) => {
   return (
-    <div className={ getClassNames() } onClick={ canRotateQuadrant ? () => selectQuadrant(row, column) : null }>
+    <div className={ getClassNames() } onClick={ onClick }>
       { quadrant.map((row, i) =>
         <div className="quadrant-row" key={ `quadrant-row-${i}` }>
           { row.map(cell => <Cell key={ `cell-${ cell.id }` } cell={ cell } /> ) }
         </div>
       )}
 
-      <svg className="arrow clockwise" onClick={ rotate.bind(null, row, column, true) }>
-        <use xlinkHref={ `${clockwise}#Arrow` } style={ { fill: 'white' } }></use>
-      </svg>
-
-      <svg className="arrow counter-clockwise" onClick={ rotate.bind(null, row, column, false) }>
-        <use xlinkHref={ `${counterClockwise}#Arrow` } style={ { fill: 'white' } }></use>
-      </svg>
+      <Isvg wrapper={ makeArrow(row, column, true, rotateQuadrant) } src={ clockwise } />
+      <Isvg wrapper={ makeArrow(row, column, false, rotateQuadrant) } src={ counterClockwise } />
     </div>
   )
 
-  function rotate(row, column, clockwise, e) {
+  function onClick(e) {
+    if(!canRotateQuadrant) return;
+
     e.stopPropagation();
-    rotateQuadrant(row, column, clockwise);
+    selectQuadrant(row, column);
   }
 
   function getClassNames() {
     const classNames = ['quadrant'];
-
-    if(canRotateQuadrant) {
-      classNames.push('on');
-    }
 
     if(isSelected) {
       classNames.push('selected');
@@ -44,14 +39,14 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
   }
 }
 
-const mapStateToProps = (state, props) => {
-  return {
-    canRotateQuadrant: !state.draw && state.canRotateQuadrant,
-    isSelected: state.ui.selectedQuadrant.row === props.row && state.ui.selectedQuadrant.column === props.column
-  }
-}
+const connectState = (state, props) => ({
+  canRotateQuadrant: !state.draw && state.canRotateQuadrant,
+  isSelected: state.ui.selectedQuadrant.row === props.row && state.ui.selectedQuadrant.column === props.column,
+});
 
-export default connect(
-  mapStateToProps,
-  { rotateQuadrant, selectQuadrant }
-)(Quadrant);
+const connectDispatch = {
+  rotateQuadrant,
+  selectQuadrant
+};
+
+export default connect(connectState, connectDispatch)(Quadrant);

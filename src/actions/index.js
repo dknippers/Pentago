@@ -3,6 +3,7 @@ import { getPlayers } from '../selectors/playerSelectors';
 import { computeMove } from './ai';
 
 export const TRY_PICK_CELL = 'TRY_PICK_CELL';
+// Returns: true/false if it's game over after picking the cell (due to win or draw)
 export function tryPickCell(cellId, playerId) {
   return (dispatch, getState) => {
     const cell = getState().cells[cellId];
@@ -15,15 +16,7 @@ export function tryPickCell(cellId, playerId) {
 
     // Cell
     dispatch(pickCell(cellId, playerId));
-
-    if(!checkWinner(dispatch, getState)) {
-      // Rotation
-      dispatch(rotateQuadrant(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2), Math.random() > 0.5));
-
-      if(!checkWinner(dispatch, getState)) {
-        dispatch(beginTurn());
-      }
-    }
+    return checkWinner(dispatch, getState);
   }
 }
 
@@ -36,7 +29,7 @@ function pickCell(cellId, playerId) {
   }
 };
 
-function checkWinner(dispatch, getState) {
+function checkWinner(dispatch, getState, checkDraw) {
   const players = getPlayers(getState().players);
 
   for(let i = 0; i < players.length; i++) {
@@ -53,11 +46,13 @@ function checkWinner(dispatch, getState) {
   }
 
   // Full board, no winner => draw
-  const availableCells = getAvailableCells(getState().cells);
-  if(availableCells.length === 0) {
-    dispatch(draw());
-    setTimeout(() => dispatch(resetGame()), 2000);
-    return true;
+  if(checkDraw) {
+    const availableCells = getAvailableCells(getState().cells);
+    if(availableCells.length === 0) {
+      dispatch(draw());
+      setTimeout(() => dispatch(resetGame()), 2000);
+      return true;
+    }
   }
 
   return false;
@@ -104,9 +99,17 @@ export function selectQuadrant(row, column) {
 };
 
 export const ROTATE_QUADRANT = 'ROTATE_QUADRANT';
+// Returns: true/false if it's game over after rotation
 export function rotateQuadrant(row, column, clockwise) {
   return (dispatch, getState) => {
     dispatch(rotateQuadrantAction(row, column, clockwise));
+    const winningRotation = checkWinner(dispatch, getState, true);
+
+    if(!winningRotation) {
+      dispatch(beginTurn());
+    }
+
+    return winningRotation;
   }
 }
 

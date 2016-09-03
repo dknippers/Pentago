@@ -16,7 +16,7 @@ body {
   opacity: 0.25;
 }
 
-.game.game-over .cell.winning {
+.game.game-over .board.disable-cells .cell.winning {
   opacity: 1;
 }
 
@@ -41,49 +41,55 @@ body {
 
 .quadrant {
   position: relative;
+  margin: 5px;
 }
 
-.quadrant svg.arrow {
+.quadrant .arrow svg {
   width: 100px;
   height: 100px;
   position: absolute;
   top: 64px;
   display: none;
+  fill: #eeeeec;
 }
 
-.quadrant.on.selected svg.arrow {
+.quadrant .arrow svg:hover path {
+  fill: #fce94f;
+}
+
+.quadrant.selected .arrow svg {
   display: block;
 }
 
-.quadrant svg.arrow:hover {
+.quadrant .arrow svg:hover {
   cursor: pointer;
 }
 
-.quadrant svg.clockwise {
-  left: 0;
-}
-
-.quadrant svg.counter-clockwise {
+.quadrant .arrow.clockwise svg {
   right: 0;
 }
 
-.quadrant.on .cell {
+.quadrant .arrow.counter-clockwise svg {
+  left: 0;
+}
+
+.board.enable-quadrants .quadrant .cell {
   opacity: 0.4;
 }
 
-.quadrant.on.selected .cell {
+.board.enable-quadrants .quadrant.selected .cell {
   opacity: 1;
 }
 
-.quadrant.on:hover {
+.board.enable-quadrants .quadrant:hover .cell {
+  opacity: 1;
+}
+
+.board.enable-quadrants .quadrant:hover {
   cursor: pointer;
 }
 
-.quadrant.on:hover .cell {
-  opacity: 1;
-}
-
-.quadrant.on:hover .cell:hover {
+.board.enable-quadrants .quadrant:hover .cell:hover {
   cursor: pointer;
 }
 
@@ -96,11 +102,9 @@ body {
 .cell {
     width: 64px;
     height: 64px;
-    /*border: 1px solid #888a85;*/
     margin: 2px;
     border-radius: 5%;
 }
-
 
 .cell > img {
   max-width: 60%;
@@ -129,8 +133,7 @@ body {
   box-shadow: 0 0 0 2px #eeeeec;
 }
 
-.cell.empty.off:hover {
-  cursor: default;
+.board.disable-cells .cell.empty:hover {
   opacity: 1;
   box-shadow: none;
 }
@@ -139,53 +142,12 @@ body {
   background-color: #cc0000;
 }
 
-.cell.empty.player-1.off:hover {
-  background-color: inherit;
-}
-
 .cell.empty.player-2:hover {
   background-color: #3465a4;
 }
 
-.cell.empty.player-2.off:hover {
+.board.disable-cells .cell.empty:hover {
   background-color: inherit;
-}
-
-.cell.quadrant-border-bottom {
-    /*box-shadow: 0 3px 4px #d3d7cf;*/
-    margin-bottom: 8px;
-}
-
-
-.cell.quadrant-border-right {
-    /*box-shadow: 3px 0 4px #d3d7cf;*/
-    margin-right: 8px;
-}
-
-.cell.quadrant-border-left {
-  /*box-shadow: -3px 0 4px #d3d7cf;*/
-  margin-left: 8px;
-}
-
-.cell.quadrant-border-top {
-  /*box-shadow: 0 -3px 4px #d3d7cf;*/
-  margin-top: 8px;
-}
-
-.cell.quadrant-border-bottom.cell.quadrant-border-right {
-    /*box-shadow: 3px 3px 4px #d3d7cf;*/
-}
-
-.cell.quadrant-border-bottom.cell.quadrant-border-left {
-    /*box-shadow: -3px 3px 4px #d3d7cf;*/
-}
-
-.cell.quadrant-border-top.cell.quadrant-border-left {
-    /*box-shadow: -3px -3px 4px #d3d7cf;*/
-}
-
-.cell.quadrant-border-top.cell.quadrant-border-right {
-    /*box-shadow: 3px -3px 4px #d3d7cf;*/
 }
 
 .cell.last-move {

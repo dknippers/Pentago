@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "react-scripts": "0.2.3"
+    "react-scripts": "0.4.0"
   },
   "dependencies": {
     "react": "^15.3.1",
@@ -16,7 +16,8 @@
     "redux-devtools": "*",
     "redux-devtools-log-monitor": "*",
     "redux-devtools-dock-monitor": "*",
-    "reselect": "*"
+    "reselect": "*",
+    "react-inlinesvg": "*"
   },
   "scripts": {
     "start": "react-scripts start",
