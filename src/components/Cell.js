@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { tryPickCell } from '../actions';
 
-const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant, isWinningCell }) => {
+const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant, isWinningCell, isComputedByAi }) => {
   return (
     <div className={ getClassNames() } onClick={ canPickCell ? () => tryPickCell(cell.id, activePlayerId) : null }>
       <data value={ `(${ cell.row },${ cell.col }) ${ cell.player ? cell.player : '' }` } />
@@ -27,6 +27,10 @@ const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRot
       classNames.push('winning');
     }
 
+    if(isComputedByAi) {
+      classNames.push('computed');
+    }
+
     return classNames.join(' ');
   }
 }
@@ -37,7 +41,8 @@ const mapStateToProps = (state, props) => {
       lastMove: state.lastMove,
       canPickCell: !state.draw && state.canPickCell && props.cell.player == null,
       canRotateQuadrant: !state.draw && state.canRotateQuadrant,
-      isWinningCell: state.ui.winningCells.some(cell => cell.id === props.cell.id)
+      isWinningCell: state.ui.winningCells.some(cell => cell.id === props.cell.id),
+      isComputedByAi: state.ui.computedMove && state.ui.computedMove.cellId == props.cell.id
     }
   }
 

@@ -1,14 +1,12 @@
-import { getAvailableCells, getWinningCellsByPlayer, getBoardScoreByPlayer } from '../selectors/cellSelectors';
+import { getAvailableCells, getWinningCellsByPlayer, getBoardScoreByPlayer, getCell } from '../selectors/cellSelectors';
 import { getPlayers } from '../selectors/playerSelectors';
-import { computeMove } from './ai';
+import { computeAndDoMove } from './ai';
 
 export const TRY_PICK_CELL = 'TRY_PICK_CELL';
 // Returns: true/false if it's game over after picking the cell (due to win or draw)
 export function tryPickCell(cellId, playerId) {
   return (dispatch, getState) => {
-    const cell = getState().cells[cellId];
-
-    const errorMessage = validateMove(cell, cellId, playerId);
+    const errorMessage = validateMove(getState, cellId, playerId);
 
     if(errorMessage) {
       return dispatch(showError(errorMessage));
@@ -21,12 +19,7 @@ export function tryPickCell(cellId, playerId) {
     const scores = getBoardScoreByPlayer(getState());
     dispatch(updateScores(scores));
 
-    //return checkWinner(dispatch, getState);
-    const winner = checkWinner(dispatch, getState);
-
-    dispatch(beginTurn());
-
-    return winner;
+    return checkWinner(dispatch, getState);
   }
 }
 
@@ -49,7 +42,7 @@ function checkWinner(dispatch, getState, checkDraw) {
     if(winningCells) {
       dispatch(playerWon(player.id, winningCells));
 
-      setTimeout(() => dispatch(resetGame()), 2000);
+      setTimeout(() => dispatch(resetGame()), 500);
 
       return true;
     }
@@ -60,7 +53,7 @@ function checkWinner(dispatch, getState, checkDraw) {
     const availableCells = getAvailableCells(getState());
     if(availableCells.length === 0) {
       dispatch(draw());
-      setTimeout(() => dispatch(resetGame()), 2000);
+      setTimeout(() => dispatch(resetGame()), 500);
       return true;
     }
   }
@@ -137,10 +130,15 @@ function rotateQuadrantAction(row, column, clockwise) {
   }
 }
 
-function validateMove(cell, cellId, playerId) {
+function validateMove(getState, cellId, playerId) {
   let errorMessage = null;
 
-  if(!cell) {
+  const state = getState();
+  const cell = getCell(getState(), cellId);
+
+  if(state.gameOver) {
+    errorMessage = `The game has ended`;
+  } else if(!cell) {
     errorMessage = `Cell #${ cell.id } does not exist!`;
   } else if(cell.player != null) {
     errorMessage = `Cell (${ cell.row }, ${ cell.col }) is not empty!`
@@ -175,9 +173,9 @@ export function beginTurn() {
 
       if(!player || !player.isAI) return;
 
-      // AI => compute its move
-      dispatch(computeMove(dispatch, getState));
-    }, 2500);
+      // AI => compute its move and do it
+      dispatch(computeAndDoMove(dispatch, getState));
+    }, 250);
   }
 }
 

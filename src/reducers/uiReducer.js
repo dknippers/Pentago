@@ -1,5 +1,15 @@
 import { combineReducers } from 'redux';
-import { SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON } from '../actions';
+import { SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, RESET_GAME, BEGIN_TURN } from '../actions';
+import { COMPUTED_MOVE } from '../actions/ai';
+
+const uiReducer = combineReducers({
+  selectedQuadrant,
+  winningCells,
+  score,
+  computedMove
+});
+
+export default uiReducer;
 
 function selectedQuadrant(state = {}, action) {
   switch(action.type) {
@@ -34,10 +44,14 @@ function score(state = {}, action) {
   }
 }
 
-const uiReducer = combineReducers({
-  selectedQuadrant,
-  winningCells,
-  score,
-});
+function computedMove(state = null, action){
+  switch(action.type) {
+    case COMPUTED_MOVE:
+      return action.move;
 
-export default uiReducer;
+    case BEGIN_TURN:
+      return null;
+
+    default: return state;
+  }
+}

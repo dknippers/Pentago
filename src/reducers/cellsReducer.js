@@ -20,14 +20,15 @@ export const initialState = byId(allCells);
 function cells(state = initialState, action) {
 	switch(action.type) {
     case PICK_CELL:
-      const cell = state[action.cellId];
+      const { cellId } = action;
+      const cell = state[cellId];
 
       if(cell.player != null) {
         throw new Error(`Cell (${cell.row}, ${cell.col}) is not empty!`);
       }
 
       return Object.assign({}, state, {
-        [action.cellId]: Object.assign({}, state[action.cellId], {
+        [cell.id]: Object.assign({}, cell, {
           player: action.playerId
         })
       });

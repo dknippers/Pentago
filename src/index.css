@@ -9,6 +9,15 @@ body {
 }
 
 .game {
+  display: flex;
+  justify-content: center;
+}
+
+.column {
+  margin: 0 20px;
+}
+
+.column-center {
   text-align: center;
 }
 
@@ -18,6 +27,23 @@ body {
 
 .game.game-over .board.disable-cells .cell.winning {
   opacity: 1;
+}
+
+button.btn {
+  display: block;
+  padding: 5px 10px;
+  background: none;
+  margin: 10px;
+  color: white;
+  font-family: inherit;
+  font-size: 12pt;
+  border-radius: 4px;
+  background-color: #2e3436;
+}
+
+button.btn:hover {
+  cursor: pointer;
+  filter: invert(100%);
 }
 
 .error {
@@ -116,7 +142,7 @@ body {
 }
 
 .cell.player-1 {
-    background-color: #cc0000;
+  background-color: #cc0000;
 }
 
 .cell.player-2 {
@@ -125,6 +151,14 @@ body {
 
 .cell.empty {
   background-color: transparent;
+}
+
+.cell.empty.computed.player-1 {
+  border: 4px solid #cc0000;
+}
+
+.cell.empty.computed.player-2 {
+  border: 4px solid #3465a4;
 }
 
 .cell.empty:hover {

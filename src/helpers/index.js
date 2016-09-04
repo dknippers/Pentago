@@ -60,6 +60,22 @@ export function uniq(array) {
   }, []);
 }
 
+// From: http://stackoverflow.com/a/6274381/2858155
+// Modified to return new array
+export function shuffle(a) {
+  const newA = Array.from(a);
+
+  var j, x, i;
+  for (i = newA.length; i; i--) {
+      j = Math.floor(Math.random() * i);
+      x = newA[i - 1];
+      newA[i - 1] = newA[j];
+      newA[j] = x;
+  }
+
+  return newA;
+}
+
 function greaterThan(x, y) {
   if(x > y) return 1;
   if(x < y) return -1;

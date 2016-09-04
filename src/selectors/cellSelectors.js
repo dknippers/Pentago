@@ -12,6 +12,8 @@ const getCells = createSelector(
   cellsById => Object.keys(cellsById).map(id => cellsById[id])
 )
 
+export const getCell = (state, id) => state.cells[id];
+
 export const getAvailableCells = createSelector(
   getCells,
   cells => cells.filter(cell => cell.player == null)
@@ -206,7 +208,7 @@ export const getMetadata = createSelector(
 
       for(let line of cellsInLine) {
         const potentialAmountInLine = computePotentialsInLine(line, player);
-        if(!potentialAmountInLine) continue;
+        if(!potentialAmountInLine || potentialAmountInLine.length === 0) continue;
 
         for(let group of potentialAmountInLine) {
           (potentials[group.length] || (potentials[group.length] = [])).push(group);
@@ -224,13 +226,16 @@ function computePotentialsInLine(line, player) {
   const maxInLine = maxAdjacentsInLine(line, player);
   // If the maximum amount is not enough to win
   // there's no potential whatsoever, line should be totally ignored.
-  if(maxInLine <= Constants.AMOUNT_IN_LINE_TO_WIN) return null;
+  if(maxInLine < Constants.AMOUNT_IN_LINE_TO_WIN) return null;
 
   // Chunk by empty or owned by player, drops opponents cells
   const chunks = chunk(line, cell => cell.player == null || (cell.player === player.id ? false : null));
 
-  return chunks.reduce((groups, chunk) => {
+  const result = chunks.reduce((groups, chunk) => {
     const [ isEmpty, cells ] = chunk;
+
+    // TODO: Fix this can occur at all (bug in chunk method when last element becomes null)
+    if(!cells) return groups;
 
     const firstCell = cells[0];
     const firstIdx = line.indexOf(firstCell)
@@ -246,21 +251,29 @@ function computePotentialsInLine(line, player) {
         groups.push(cells)
       }
     } else {
+      const prevGroupIsEmpty = prevGroup.every(cell => cell.player == null);
       let prevLastCell = prevGroup[prevGroup.length - 1];
       let prevLastIdx = line.indexOf(prevLastCell);
 
       let distance = Math.abs(firstIdx - prevLastIdx);
 
-      // If we are not adjacent, never mind
+      // If we are not adjacent, we can't join them
       if(distance > 1) {
+        // However, make sure to remove the previous group
+        // if it was completely empty
+        if(prevGroupIsEmpty) {
+          groups.pop();
+        }
+
+        // And add ourself so other cells can join up later
         if(!isLastAndEmpty) {
           groups.push(cells)
         }
       } else {
         // Empty cells, first cell will try to join the previous group
         if(isEmpty) {
-          // If the previous group is completely empty, just remove it (it's irrelevant)
-          if(prevGroup.every(cell => cell.player == null)) {
+          // If the previous group is completely empty, remove it (it's irrelevant)
+          if(prevGroupIsEmpty) {
             groups.pop();
 
             // Add ourselves, but not if we are the last empty group
@@ -299,7 +312,8 @@ function computePotentialsInLine(line, player) {
             }
           } else {
             // Previous group is entirely empty
-            // Grab their last cell and discard the rest
+            // Grab their last cell and put it in a new group,
+            // remove the empty group
             groups.pop();
             groups.push([ prevLastCell, ...cells]);
           }
@@ -309,6 +323,10 @@ function computePotentialsInLine(line, player) {
 
     return groups;
   }, []);
+
+  var moreThan2 = result.some(r => r.length > 2);
+
+  return result;
 }
 
 function maxAdjacentsInLine(line, player) {
@@ -336,7 +354,7 @@ function scoreForPlayer(metadata, player) {
 
   const keys = Object.keys(metadata[player.id]);
   for(let n of keys) {
-    const base = scoreSystem[n];
+    let base = scoreSystem[n];
 
     const chunkedCells = metadata[player.id][n];
 
@@ -344,13 +362,22 @@ function scoreForPlayer(metadata, player) {
       let multiplier = 1;
 
       const emptyCell = group.find(cell => cell.player == null);
-      const numQuadrants = Constants.NUM_QUADRANTS;
-      const cellsByQuadrant = chunk(group, cell => (cell.row % numQuadrants) + (cell.col % numQuadrants)).map(chunk => chunk[1]);
-      const longestLine = maxElement(cellsByQuadrant, cells => cells.length);
-      const completesQuadrant = longestLine.length >= Constants.QUADRANT_SIZE && longestLine.indexOf(emptyCell) > -1;
 
-      if(completesQuadrant) {
-        multiplier = scoreSystem.fillQuadrantMultiplier;
+      // No emptyCell means it's not a potential of n, but it already IS n,
+      // the line is simply not longer. So increase our base accordingly.
+      if(!emptyCell) {
+        base = scoreSystem[n + 1];
+      } else {
+        const qSize = Constants.QUADRANT_SIZE;
+        const cellsByQuadrant = chunk(group, cell => `${Math.floor(cell.row / qSize)}${Math.floor(cell.col / qSize)}`).map(chunk => chunk[1]);
+
+        // Empty cell completed a quadrant if the group it is part of is the length of a quadrant
+        const groupOfEmptyCell = cellsByQuadrant.find(cells => cells.indexOf(emptyCell) > -1);
+        const completesQuadrant = groupOfEmptyCell.length === Constants.QUADRANT_SIZE;
+
+        if(completesQuadrant) {
+          multiplier = scoreSystem.fillQuadrantMultiplier;
+        }
       }
 
       score.points = score.points + base * multiplier;

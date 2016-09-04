@@ -4,7 +4,7 @@ import {
   makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
 } from '../selectors/cellSelectors';
 import { getPlayers, makeGetCurrentPlayer, makeGetNextPlayer } from '../selectors/playerSelectors';
-import { chunk, maxElement } from '../helpers';
+import { chunk, maxElement, shuffle } from '../helpers';
 import * as Constants from '../constants';
 
 const boards = [
@@ -30,16 +30,36 @@ export function computeMove() {
 
     let moveData = null;
     for(let moveFunction of optimalMovesInOrder) {
-      console.log(`Trying ${moveFunction.name}`);
+     // console.log(`${currentPlayer.name}: Trying ${moveFunction.name}`);
       moveData = moveFunction(getState);
-      if(moveData != null) break;
+      if(moveData != null) {
+        console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
+        break;
+      }
     }
-    const { cell, rotation } = moveData;
 
-    if(cell != null) {
-      const gameOver = dispatch(tryPickCell(cell, currentPlayer.id));
+    dispatch(computedMove(moveData));
 
-      return;
+    return moveData;
+  }
+}
+
+export const COMPUTED_MOVE = 'COMPUTED_MOVE';
+export const computedMove = (move) => ({
+  type: COMPUTED_MOVE,
+  move: move
+});
+
+export function computeAndDoMove() {
+  return (dispatch, getState) => {
+    const state = getState();
+
+    // If we had already computed a move this turn,
+    // use that instead of computing a new one again
+    const { cellId, rotation } = state.ui.computedMove || computeMove()(dispatch, getState);
+
+    if(cellId != null) {
+      const gameOver = dispatch(tryPickCell(cellId, currentPlayer.id));
 
       if(!gameOver && rotation != null) {
         const { row, column, clockwise } = rotation;
@@ -96,9 +116,20 @@ function initBoard(getState, rotation) {
 }
 
 const optimalMovesInOrder = [
+  winningMove,
+  preventWinningMove,
+
+  makeLine4,
+  preventLineInQuadrant,
+
+  lineInQuadrant,
+  preventMakeLine4,
+
+  makeLine3,
+
   inCenter,
-  makeLine,
-  randomAvailableCell
+  adjacentToSelf,
+  randomCell
 ];
 
 function getBoard(rotation) {
@@ -113,10 +144,10 @@ function getBoard(rotation) {
     ));
 }
 
-function makeLine(getState, player = currentPlayer, min = 2, requiresFullQuadrant = false) {
+function makeLine(getState, { player = currentPlayer, min = 3, requiresFullQuadrant = false } = {}) {
   let optimal = {
     score: null,
-    cell: null,
+    cellId: null,
     rotation: null
   }
 
@@ -141,10 +172,15 @@ function makeLine(getState, player = currentPlayer, min = 2, requiresFullQuadran
 
         for(let group of potentials) {
           const emptyCell = group.find(cell => cell.player == null);
-          const cells = maxElement(chunk(group, cell => cell.row % numQuadrants + cell.col % numQuadrants).map(chunk => chunk[1]), cells => cells.length);
+
+          const qSize = Constants.QUADRANT_SIZE;
+          const cellsByQuadrant = chunk(group, cell => `${Math.floor(cell.row / qSize)}${Math.floor(cell.col / qSize)}`).map(chunk => chunk[1]);
+          // Empty cell completed a quadrant if the group it is part of is the length of a quadrant
+          const groupOfEmptyCell = cellsByQuadrant.find(cells => cells.indexOf(emptyCell) > -1);
+          const completesQuadrant = groupOfEmptyCell && groupOfEmptyCell.length === Constants.QUADRANT_SIZE;
 
           // Fills a quadrant? Then we include it
-          if(cells.length >= Constants.QUADRANT_SIZE && cells.indexOf(emptyCell) > -1) {
+          if(completesQuadrant) {
             (newMeta[key] || (newMeta[key] = [])).push(group)
           }
         }
@@ -157,43 +193,47 @@ function makeLine(getState, player = currentPlayer, min = 2, requiresFullQuadran
     let cell = null;
     let cells = null;
     if(key) {
-      cells = maxElement(meta[key], group => {
-        const emptyCell = group.find(cell => cell.player == null);
+      // Introduce a bit of randomness
+      const metaCopy = shuffle(meta[key]);
 
-        const state = getState();
-        const newState = Object.assign({}, state, {
-          cells: Object.assign({}, state.cells, {
-            [emptyCell.id]: Object.assign({}, state.cells[emptyCell.id], {
-              player: player.id
-            })
+      cells = maxElement(metaCopy, group => {
+        const emptyCell = group.find(cell => cell.player == null);
+        if(!emptyCell) return null;
+
+        // State with current rotated cells
+        // and possibly the given cell
+        const state = Object.assign({}, getState(), {
+          cells: Object.assign({}, board.cells, {
+            [emptyCell.id]: Object.assign({}, board.cells[emptyCell.id], { player: player.id })
           })
         });
 
-        return getBoardScoreByPlayer(newState);
+        const score = getBoardScoreByPlayer(state);
+
+        return score[player.id];
       });
 
-      cell = cells.find(cell => cell.player == null);
+      cell = cells && cells.find(cell => cell.player == null);
     }
 
     if(cell) {
-      const state = getState();
-      const newState = Object.assign({}, state, {
-        cells: Object.assign({}, state.cells, {
-          [cell.id]: Object.assign({}, state.cells[cell.id], {
-            player: player.id
-          })
+      // State with current rotated cells
+      // and possibly the given cell
+      const state = Object.assign({}, getState(), {
+        cells: Object.assign({}, board.cells, {
+          [cell.id]: Object.assign({}, board.cells[cell.id], { player: player.id })
         })
       });
-      const score = getBoardScoreByPlayer(newState);
 
-      // TODO
-      // if(requiresFullQuadrant && cells && cells.length === Constants.QUADRANT_SIZE) {
-      //   rotation = optimalRotation(cell);
-      // }
+      const score = getBoardScoreByPlayer(state)[player.id];
+
+      if(requiresFullQuadrant && cells && cells.length === Constants.QUADRANT_SIZE) {
+        rotation = optimalRotation(getState, cell);
+      }
 
       if(optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5)) {
         optimal = {
-          cell: cell.id,
+          cellId: cell.id,
           score,
           rotation
         }
@@ -201,16 +241,57 @@ function makeLine(getState, player = currentPlayer, min = 2, requiresFullQuadran
     }
   }
 
-  if(optimal.cell) {
+  if(optimal.cellId) {
     return {
-      cell: optimal.cell,
+      cellId: optimal.cellId,
       rotation: optimal.rotation
     }
   }
 }
 
+function winningMove(getState, { player = currentPlayer } = {}) {
+  return makeLine(getState, { min: Constants.AMOUNT_IN_LINE_TO_WIN, player });
+}
+
+function preventWinningMove(getState) {
+  return preventWithOptimalRotation(winningMove, getState);
+}
+
+function makeLine4(getState, { player = currentPlayer } = {}) {
+  return makeLine(getState, { min: 4, player });
+}
+
+function preventMakeLine4(getState) {
+  return preventWithOptimalRotation(makeLine4, getState);
+}
+
+function preventWithOptimalRotation(func, getState, options) {
+  const move = func(getState, Object.assign({}, options, { player: nextPlayer }));
+  if(!move) return null;
+
+  const { cellId, } = move;
+
+  // Return
+  return {
+    cellId,
+    rotation: optimalRotation(getState, cellId)
+  }
+}
+
+function lineInQuadrant(getState, { player = currentPlayer } = {}) {
+  return makeLine3(getState, { player, requiresFullQuadrant: true });
+}
+
+function preventLineInQuadrant(getState) {
+  return preventWithOptimalRotation(lineInQuadrant, getState);
+}
+
+function makeLine3(getState, { player = currentPlayer, requiresFullQuadrant = false } = {}) {
+  return makeLine(getState, { min: 3, player, requiresFullQuadrant });
+}
+
 function inCenter(getState, player = currentPlayer.id) {
-  const rotation = optimalRotation();
+  const rotation = optimalRotation(getState);
 
   const board = getBoard(rotation)
   const quadrants = getQuadrants({ cells: board.cells });
@@ -243,8 +324,8 @@ function inCenter(getState, player = currentPlayer.id) {
     cell = cell || availableCenters[Math.floor(Math.random() * availableCenters.length)];
 
     return {
-      cell: cell.id,
-      rotation: rotation
+      cellId: cell.id,
+      rotation
     }
   }
 
@@ -252,34 +333,60 @@ function inCenter(getState, player = currentPlayer.id) {
   return null;
 }
 
-function randomAvailableCell() {
-  return moveWithOptimalRotation(randomCell);
+function adjacentToSelf(getState) {
+  return makeLine(getState, { min: 2 });
 }
 
-function randomCell() {
-  const rotation = optimalRotation();
+function randomCell(getState) {
+  const rotation = optimalRotation(getState);
   const board = getBoard(rotation);
   const cells = getAvailableCells({ cells: board.cells });
   if(cells.length === 0) return;
   const cell = cells[Math.floor(Math.random() * cells.length)];
 
   return {
-    cell: cell.id,
-    rotation: rotation
+    cellId: cell.id,
+    rotation
   }
 }
 
-function moveWithOptimalRotation(moveFunction) {
-  return Object.assign({}, moveFunction(), {
-    rotation: optimalRotation()
+function moveWithOptimalRotation(getState, moveFunction) {
+  return Object.assign({}, moveFunction(getState), {
+    rotation: optimalRotation(getState)
   });
 }
 
-function optimalRotation() {
-  return {
-    row: Math.floor(Math.random() * 2),
-    column: Math.floor(Math.random() * 2),
-    clockwise: Math.random() > 0.5
+function optimalRotation(getState, cellId = null) {
+  let optimal = {
+    score: null,
+    rotation: null
+  }
+
+  for(const board of boards) {
+    const rotation = board.rotation;
+
+    if(!rotation) continue;
+
+    // State with current rotated cells
+    // and possibly the given cell
+    const state = Object.assign({}, getState(), {
+      cells: Object.assign({}, board.cells, cellId == null ? null : {
+        [cellId]: Object.assign({}, board.cells[cellId], { player: currentPlayer.id })
+      })
+    });
+
+    const score = getBoardScoreByPlayer(state)[currentPlayer.id];
+
+    if(optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5)) {
+      optimal = {
+        score,
+        rotation
+      }
+    }
+  }
+
+  if(optimal.rotation) {
+    return optimal.rotation;
   }
 }
 

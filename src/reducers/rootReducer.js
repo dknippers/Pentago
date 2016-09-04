@@ -25,7 +25,7 @@ const rootReducer = combineReducers({
 export default rootReducer;
 
 function activePlayer(state = 1, action) {
-  return 1;
+  //return 1;
 
   switch(action.type) {
     case ROTATE_QUADRANT:
@@ -102,8 +102,6 @@ function canPickCell(state = false, action) {
 }
 
 function canRotateQuadrant(state = false, action) {
-  return false;
-
   switch(action.type) {
     case(ROTATE_QUADRANT):
     case(RESET_GAME):
