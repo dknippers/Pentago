@@ -42,7 +42,7 @@ function checkWinner(dispatch, getState, checkDraw) {
     if(winningCells) {
       dispatch(playerWon(player.id, winningCells));
 
-      setTimeout(() => dispatch(resetGame()), 500);
+      // setTimeout(() => dispatch(resetGame()), 500);
 
       return true;
     }
@@ -53,7 +53,7 @@ function checkWinner(dispatch, getState, checkDraw) {
     const availableCells = getAvailableCells(getState());
     if(availableCells.length === 0) {
       dispatch(draw());
-      setTimeout(() => dispatch(resetGame()), 500);
+      //setTimeout(() => dispatch(resetGame()), 500);
       return true;
     }
   }
@@ -62,14 +62,14 @@ function checkWinner(dispatch, getState, checkDraw) {
 }
 
 export const DRAW = 'DRAW';
-function draw() {
+export function draw() {
   return {
     type: DRAW
   };
 }
 
 export const PLAYER_WON = 'PLAYER_WON'
-function playerWon(player, cells) {
+export function playerWon(player, cells) {
   return {
     type: PLAYER_WON,
     player,
@@ -80,17 +80,10 @@ function playerWon(player, cells) {
 export const RESET_GAME = 'RESET_GAME';
 export function resetGame() {
   return (dispatch, state) => {
-    dispatch(resetGameAction());
+    dispatch({ type: RESET_GAME });
     dispatch(beginTurn());
   }
 }
-
-function resetGameAction() {
-  return {
-    type: RESET_GAME
-  };
-}
-
 
 export const SELECT_QUADRANT = 'SELECT_QUADRANT';
 export function selectQuadrant(row, column) {
@@ -175,7 +168,7 @@ export function beginTurn() {
 
       // AI => compute its move and do it
       dispatch(computeAndDoMove(dispatch, getState));
-    }, 250);
+    }, 0);
   }
 }
 
@@ -184,5 +177,19 @@ export function updateScores(scores) {
   return {
     type: UPDATE_SCORES,
     scores
+  }
+}
+
+export const SHOW_PREVIOUS_MOVE = 'SHOW_PREVIOUS_MOVE';
+export function showPreviousMove() {
+  return {
+    type: SHOW_PREVIOUS_MOVE
+  }
+}
+
+export const HIDE_PREVIOUS_MOVE = 'HIDE_PREVIOUS_MOVE';
+export function hidePreviousMove() {
+  return {
+    type: HIDE_PREVIOUS_MOVE
   }
 }

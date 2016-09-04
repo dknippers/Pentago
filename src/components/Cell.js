@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { tryPickCell } from '../actions';
 
-const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant, isWinningCell, isComputedByAi }) => {
+const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant, isWinningCell, isComputedByAi, showPreviousMove }) => {
   return (
     <div className={ getClassNames() } onClick={ canPickCell ? () => tryPickCell(cell.id, activePlayerId) : null }>
       <data value={ `(${ cell.row },${ cell.col }) ${ cell.player ? cell.player : '' }` } />
@@ -19,7 +19,7 @@ const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRot
       classNames.push(`player-${ activePlayerId }`);
     }
 
-    if(lastMove != null && lastMove === cell.id) {
+    if(showPreviousMove && lastMove.cellId === cell.id) {
       classNames.push('last-move');
     }
 
@@ -42,7 +42,8 @@ const mapStateToProps = (state, props) => {
       canPickCell: !state.draw && state.canPickCell && props.cell.player == null,
       canRotateQuadrant: !state.draw && state.canRotateQuadrant,
       isWinningCell: state.ui.winningCells.some(cell => cell.id === props.cell.id),
-      isComputedByAi: state.ui.computedMove && state.ui.computedMove.cellId == props.cell.id
+      isComputedByAi: state.ui.computedMove && state.ui.computedMove.cellId === props.cell.id,
+      showPreviousMove: state.ui.showPreviousMove
     }
   }
 

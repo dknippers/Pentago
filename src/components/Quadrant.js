@@ -7,7 +7,7 @@ import counterClockwise from '../svg/counter-clockwise.svg';
 import Isvg from 'react-inlinesvg';
 import { makeArrow } from './Arrow';
 
-const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant }) => {
+const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant, aiRotation, activePlayerId, lastRotation, showPreviousMove }) => {
   return (
     <div className={ getClassNames() } onClick={ onClick }>
       { quadrant.map((row, i) =>
@@ -16,8 +16,8 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
         </div>
       )}
 
-      <Isvg wrapper={ makeArrow(row, column, true, rotateQuadrant) } src={ clockwise } />
-      <Isvg wrapper={ makeArrow(row, column, false, rotateQuadrant) } src={ counterClockwise } />
+      <Isvg wrapper={ makeArrow.apply(null, getArrowParams(true)) } src={ clockwise } />
+      <Isvg wrapper={ makeArrow.apply(null, getArrowParams(false)) } src={ counterClockwise } />
     </div>
   )
 
@@ -26,6 +26,10 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
 
     e.stopPropagation();
     selectQuadrant(row, column);
+  }
+
+  function getArrowParams(clockwise) {
+    return [row, column, clockwise, rotateQuadrant, aiRotation, activePlayerId, lastRotation, showPreviousMove];
   }
 
   function getClassNames() {
@@ -42,6 +46,10 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
 const connectState = (state, props) => ({
   canRotateQuadrant: !state.draw && state.canRotateQuadrant,
   isSelected: state.ui.selectedQuadrant.row === props.row && state.ui.selectedQuadrant.column === props.column,
+  aiRotation: state.ui.computedMove && state.ui.computedMove.rotation,
+  activePlayerId: state.activePlayer,
+  lastRotation: state.lastMove.rotation,
+  showPreviousMove: state.ui.showPreviousMove
 });
 
 const connectDispatch = {

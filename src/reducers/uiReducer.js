@@ -1,12 +1,16 @@
 import { combineReducers } from 'redux';
-import { SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, RESET_GAME, BEGIN_TURN } from '../actions';
+import {
+  SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, RESET_GAME, BEGIN_TURN,
+  SHOW_PREVIOUS_MOVE, HIDE_PREVIOUS_MOVE
+} from '../actions';
 import { COMPUTED_MOVE } from '../actions/ai';
 
 const uiReducer = combineReducers({
   selectedQuadrant,
   winningCells,
   score,
-  computedMove
+  computedMove,
+  showPreviousMove
 });
 
 export default uiReducer;
@@ -51,6 +55,18 @@ function computedMove(state = null, action){
 
     case BEGIN_TURN:
       return null;
+
+    default: return state;
+  }
+}
+
+function showPreviousMove(state = false, action){
+  switch(action.type) {
+    case SHOW_PREVIOUS_MOVE:
+      return true;
+
+    case HIDE_PREVIOUS_MOVE:
+      return false;
 
     default: return state;
   }

@@ -25,8 +25,6 @@ const rootReducer = combineReducers({
 export default rootReducer;
 
 function activePlayer(state = 1, action) {
-  //return 1;
-
   switch(action.type) {
     case ROTATE_QUADRANT:
       return (state % 2) + 1;
@@ -38,13 +36,20 @@ function activePlayer(state = 1, action) {
   }
 }
 
-function lastMove(state = null, action) {
+function lastMove(state = {}, action) {
   switch(action.type) {
     case PICK_CELL:
-      return action.cellId;
+      // Erase rotation of previous player
+      return { cellId: action.cellId };
+
+    case ROTATE_QUADRANT:
+      const { row, column, clockwise } = action;
+
+      // Add rotation to current player
+      return Object.assign({}, state, { rotation: { row, column, clockwise } });
 
     case(RESET_GAME):
-      return null;
+      return {};
 
     default: return state;
   }

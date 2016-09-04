@@ -1,7 +1,7 @@
 import { byId } from '../helpers';
 
 const allPlayers = [
-  { id: 1, name: 'Red', isAI: true },
+  { id: 1, name: 'Red', isAI: false },
   { id: 2, name: 'Blue', isAI: false }
 ];
 

@@ -19,7 +19,7 @@ let currentPlayer;
 let nextPlayer;
 let getBoardScore;
 
-export function computeMove() {
+export function computeMove(showMove = true) {
   return (dispatch, getState) => {
     const state = getState();
 
@@ -33,12 +33,15 @@ export function computeMove() {
      // console.log(`${currentPlayer.name}: Trying ${moveFunction.name}`);
       moveData = moveFunction(getState);
       if(moveData != null) {
-        console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
+        // console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
         break;
       }
     }
 
-    dispatch(computedMove(moveData));
+    // Shows the move on the board (without actually doing the move)
+    if(showMove) {
+      dispatch(computedMove(moveData));
+    }
 
     return moveData;
   }
@@ -56,7 +59,7 @@ export function computeAndDoMove() {
 
     // If we had already computed a move this turn,
     // use that instead of computing a new one again
-    const { cellId, rotation } = state.ui.computedMove || computeMove()(dispatch, getState);
+    const { cellId, rotation } = state.ui.computedMove || computeMove(false)(dispatch, getState);
 
     if(cellId != null) {
       const gameOver = dispatch(tryPickCell(cellId, currentPlayer.id));

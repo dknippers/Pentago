@@ -11,13 +11,6 @@ body {
 .game {
   display: flex;
   justify-content: center;
-}
-
-.column {
-  margin: 0 20px;
-}
-
-.column-center {
   text-align: center;
 }
 
@@ -27,6 +20,11 @@ body {
 
 .game.game-over .board.disable-cells .cell.winning {
   opacity: 1;
+}
+
+.game .controls .buttons {
+  display: flex;
+  flex-direction: column;
 }
 
 button.btn {
@@ -53,10 +51,6 @@ button.btn:hover {
   font-weight: bold;
 }
 
-.board {
-    margin: 20px auto;
-}
-
 .quadrants-row, .quadrant-row {
   display: flex;
 }
@@ -77,14 +71,53 @@ button.btn:hover {
   top: 64px;
   display: none;
   fill: #eeeeec;
+  stroke-width: 10px;
+  stroke: #eeeeec;
+  opacity: 0.75;
 }
 
-.quadrant .arrow svg:hover path {
-  fill: #fce94f;
+.quadrant .arrow.clockwise.computed svg, .quadrant .arrow.clockwise.last-rotation svg  {
+  right: 20%;
 }
 
-.quadrant.selected .arrow svg {
+.quadrant .arrow.counter-clockwise.computed svg, .quadrant .arrow.counter-clockwise.last-rotation svg {
+  left: 20%;
+}
+
+.quadrant.selected .arrow svg, .quadrant .arrow.computed svg, .quadrant .arrow.last-rotation svg {
   display: block;
+}
+
+.quadrant .arrow svg:hover {
+  opacity: 1;
+}
+
+.quadrant .arrow.computed.player-1 svg {
+  opacity: 1;
+  fill: #cc0000;
+}
+
+.quadrant .arrow.last-rotation.player-1 svg, .quadrant .arrow.last-rotation.player-1 svg:hover {
+  opacity: 1;
+  fill: #3465a4;
+}
+
+.quadrant .arrow.computed.player-2 svg {
+  opacity: 1;
+  fill: #3465a4;
+}
+
+.quadrant .arrow.last-rotation.player-2 svg, .quadrant .arrow.last-rotation.player-2 svg:hover {
+  opacity: 1;
+  fill: #cc0000;
+}
+
+.quadrant .arrow.player-1 svg:hover {
+  fill: #cc0000;
+}
+
+.quadrant .arrow.player-2 svg:hover {
+  fill: #3465a4;
 }
 
 .quadrant .arrow svg:hover {
@@ -99,8 +132,12 @@ button.btn:hover {
   left: 0;
 }
 
+.cell.empty.computed.player-2 {
+  border: 4px solid #3465a4;
+}
+
 .board.enable-quadrants .quadrant .cell {
-  opacity: 0.4;
+  opacity: 0.6;
 }
 
 .board.enable-quadrants .quadrant.selected .cell {
