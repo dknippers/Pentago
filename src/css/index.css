@@ -26,17 +26,11 @@ body {
 .game.game-over .cell:hover {
   opacity: 0.25;
 }
-@media screen and (max-width: 500px), screen and (max-height: 600px) {
-  h2 {
-    margin: 10px 0;
-    font-size: 18px;
-  }
+h2 {
+  font-size: 3vmin;
 }
-@media screen and (max-width: 500px), screen and (max-height: 600px) {
-  h3 {
-    margin: 10px 0;
-    font-size: 18px;
-  }
+h3 {
+  font-size: 2.25vmin;
 }
 .controls .buttons {
   display: flex;
@@ -45,21 +39,14 @@ body {
 }
 .controls .buttons button.btn {
   display: block;
-  padding: 5px 10px;
+  padding: 0.5vmin 1vmin;
   background: none;
-  margin: 10px;
+  margin: 1vw;
   color: white;
   font-family: inherit;
-  font-size: 12pt;
+  font-size: 2vmin;
   border-radius: 4px;
   background-color: #2e3436;
-}
-@media screen and (max-width: 500px), screen and (max-height: 600px) {
-  .controls .buttons button.btn {
-    padding: 3px 5px;
-    margin: 5px;
-    font-size: 9pt;
-  }
 }
 .controls .buttons button.btn:hover {
   cursor: pointer;
@@ -164,9 +151,9 @@ body {
 }
 .board {
   flex: 3 3;
-  max-height: 64vmin;
-  max-width: 64vmin;
-  width: 64vmin;
+  max-height: 96vmin;
+  max-width: 96vmin;
+  width: 96vmin;
   flex-direction: column;
   display: flex;
 }
