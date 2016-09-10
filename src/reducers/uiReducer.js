@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import {
   SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, BEGIN_TURN,
-  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE
+  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE, RESET_GAME
 } from '../actions';
 import { COMPUTED_MOVE } from '../actions/ai';
 
@@ -32,6 +32,9 @@ function winningCells(state = [], action) {
   switch(action.type) {
     case(PLAYER_WON):
       return action.cells;
+
+    case RESET_GAME:
+      return [];
 
     default: return state;
   }

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Board from './Board';
 import Controls from './Controls';
 import ErrorMessage from './ErrorMessage';
+import OptionsWindow from './OptionsWindow';
 import Score from './Score';
 import { getPlayers } from '../selectors/playerSelectors';
 import { computeMove, computeAndDoMove } from '../actions/ai';
@@ -19,6 +20,7 @@ const Game = ({ activePlayer, winner, gameOver, players, score, boardScores, com
         <Score />
         <Controls />
         <ErrorMessage />
+        <OptionsWindow />
       </div>
     </div>
   );

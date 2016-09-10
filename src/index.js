@@ -4,7 +4,7 @@ import Pentago from './Pentago';
 import { Provider } from 'react-redux';
 import buildStore from './store/buildStore';
 import { beginTurn } from './actions';
-import './index.css';
+import './css/index.css';
 
 const store = buildStore();
 

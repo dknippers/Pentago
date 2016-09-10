@@ -194,7 +194,7 @@ export function showLastMove() {
 }
 
 export const HIDE_PREVIOUS_MOVE = 'HIDE_PREVIOUS_MOVE';
-export function hidePreviousMove() {
+export function hideLastMove() {
   return {
     type: HIDE_PREVIOUS_MOVE
   }

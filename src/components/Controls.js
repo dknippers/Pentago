@@ -1,15 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { computeMove, computeAndDoMove } from '../actions/ai';
-import { showLastMove, hidePreviousMove, resetGame } from '../actions';
+import { showLastMove, hideLastMove, resetGame } from '../actions';
 
-const Controls = ({ gameOver, showingPreviousMove, computeMove, computeAndDoMove, showLastMove, hidePreviousMove, hasPreviousMove, resetGame }) => {
+const Controls = ({ gameOver, showingLastMove, computeMove, computeAndDoMove, showLastMove, hideLastMove, hasPreviousMove, resetGame }) => {
   return (
     <div className="controls">
       <div className="buttons">
         { hasPreviousMove &&
-          <button className="btn" type="button" onClick={ togglePreviousMove } >
-            { showingPreviousMove ? `Hide previous move` : `Show previous move` }
+          <button className="btn" type="button" onClick={ toggleLastMove } >
+            { showingLastMove ? `Hide last move` : `Show last move` }
           </button>
         }
 
@@ -23,9 +23,9 @@ const Controls = ({ gameOver, showingPreviousMove, computeMove, computeAndDoMove
     </div>
   );
 
-  function togglePreviousMove() {
-    if(showingPreviousMove) {
-      hidePreviousMove();
+  function toggleLastMove() {
+    if(showingLastMove) {
+      hideLastMove();
     } else {
       showLastMove();
     }
@@ -35,7 +35,7 @@ export default connect(
   state => ({
     gameOver: state.gameOver,
     hasPreviousMove: state.lastMove.cellId != null,
-    showingPreviousMove: state.ui.showLastMove
+    showingLastMove: state.ui.showLastMove
   }),
-  { computeMove, computeAndDoMove, showLastMove, hidePreviousMove, resetGame }
+  { computeMove, computeAndDoMove, showLastMove, hideLastMove, resetGame }
 )(Controls);

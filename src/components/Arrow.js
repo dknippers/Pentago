@@ -23,7 +23,7 @@ export const makeArrow = (row, column, clockwise, rotateQuadrant, aiRotation, ac
 
     // Are we using this arrow to show a computed AI move?
     if(isSameRotation(aiRotation)) {
-      classNames.push('computed');
+      classNames.push('ai-preview');
     }
 
     if(showLastMove && isSameRotation(lastRotation)) {

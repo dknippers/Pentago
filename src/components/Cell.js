@@ -28,7 +28,7 @@ const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, isEnabled, canRotat
     }
 
     if(isComputedByAi) {
-      classNames.push('computed');
+      classNames.push('ai-preview');
     }
 
     return classNames.join(' ');
