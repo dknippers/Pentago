@@ -2,9 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { tryPickCell } from '../actions';
 
-const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRotateQuadrant, isWinningCell, isComputedByAi, showPreviousMove }) => {
+const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, isEnabled, canRotateQuadrant, isWinningCell, isComputedByAi, showLastMove }) => {
   return (
-    <div className={ getClassNames() } onClick={ canPickCell ? () => tryPickCell(cell.id, activePlayerId) : null }>
+    <div className={ getClassNames() } onClick={ isEnabled ? () => tryPickCell(cell.id, activePlayerId) : null }>
       <data value={ `(${ cell.row },${ cell.col }) ${ cell.player ? cell.player : '' }` } />
     </div>
   );
@@ -19,7 +19,7 @@ const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRot
       classNames.push(`player-${ activePlayerId }`);
     }
 
-    if(showPreviousMove && lastMove.cellId === cell.id) {
+    if(showLastMove && lastMove.cellId === cell.id) {
       classNames.push('last-move');
     }
 
@@ -35,19 +35,15 @@ const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, canPickCell, canRot
   }
 }
 
-const mapStateToProps = (state, props) => {
-    return {
+export default connect(
+  (state, props) => ({
       activePlayerId: state.activePlayer,
       lastMove: state.lastMove,
-      canPickCell: !state.draw && state.canPickCell && props.cell.player == null,
+      isEnabled: !state.ui.showLastMove && !state.draw && state.canPickCell && props.cell.player == null && (state.activePlayer == 0 || !state.players[state.activePlayer].isAI),
       canRotateQuadrant: !state.draw && state.canRotateQuadrant,
       isWinningCell: state.ui.winningCells.some(cell => cell.id === props.cell.id),
       isComputedByAi: state.ui.computedMove && state.ui.computedMove.cellId === props.cell.id,
-      showPreviousMove: state.ui.showPreviousMove
-    }
-  }
-
-export default connect(
-  mapStateToProps,
+      showLastMove: state.ui.showLastMove
+  }),
   { tryPickCell }
 )(Cell);

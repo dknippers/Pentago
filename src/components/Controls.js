@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { computeMove, computeAndDoMove } from '../actions/ai';
-import { showPreviousMove, hidePreviousMove, resetGame } from '../actions';
+import { showLastMove, hidePreviousMove, resetGame } from '../actions';
 
-const Controls = ({ gameOver, showingPreviousMove, computeMove, computeAndDoMove, showPreviousMove, hidePreviousMove, hasPreviousMove, resetGame }) => {
+const Controls = ({ gameOver, showingPreviousMove, computeMove, computeAndDoMove, showLastMove, hidePreviousMove, hasPreviousMove, resetGame }) => {
   return (
     <div className="controls">
       <div className="buttons">
@@ -27,7 +27,7 @@ const Controls = ({ gameOver, showingPreviousMove, computeMove, computeAndDoMove
     if(showingPreviousMove) {
       hidePreviousMove();
     } else {
-      showPreviousMove();
+      showLastMove();
     }
   }
 }
@@ -35,7 +35,7 @@ export default connect(
   state => ({
     gameOver: state.gameOver,
     hasPreviousMove: state.lastMove.cellId != null,
-    showingPreviousMove: state.ui.showPreviousMove
+    showingPreviousMove: state.ui.showLastMove
   }),
-  { computeMove, computeAndDoMove, showPreviousMove, hidePreviousMove, resetGame }
+  { computeMove, computeAndDoMove, showLastMove, hidePreviousMove, resetGame }
 )(Controls);

@@ -3,7 +3,7 @@ export function byId(array) {
 }
 
 // Ruby's Array#chunk
-export function chunk(array, func) {
+export function chunk(array, func, keepNullOrUndefined = false) {
   if(!Array.isArray(array)) {
     throw new Error(`First argument should be an Array`);
   }
@@ -12,33 +12,28 @@ export function chunk(array, func) {
     throw new Error(`Second argument should be a Function`);
   }
 
-  return array.reduce((chunks, element) => {
+  const chunks = array.reduce((chunks, element) => {
     const prev = chunks[chunks.length - 1];
-    const [ prevValue, prevElements ] = prev;
+    const [ prevValue, prevElements ] = prev || [];
 
     const newValue = func(element);
 
-    if(newValue == null) {
-      if(prevElements && prevElements.length) {
-        chunks.push([]);
-      }
+    if(newValue !== prevValue) {
+      // This will become a new element
+      chunks.push([newValue, [element]]);
     } else {
-      if(newValue !== prevValue) {
-        // This will become the content of the previous element
-        if(prevValue == null) {
-          prev.push(newValue);
-          prev.push([element]);
-        } else {
-          // This will become a new element
-          chunks.push([newValue, [element]]);
-        }
-      } else {
-        prevElements.push(element);
-      }
+      // Add to previous
+      prevElements.push(element);
     }
 
     return chunks;
-  }, [[]]);
+  }, []);
+
+  // Filter out any elements of a null or undefined key,
+  // unless specified otherwise
+  if(keepNullOrUndefined) return chunks;
+
+  return chunks.filter(chunk => chunk[0] != null);
 }
 
 export function groupBy(array, func) {

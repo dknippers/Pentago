@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const makeArrow = (row, column, clockwise, rotateQuadrant, aiRotation, activePlayerId, lastRotation, showPreviousMove) => ({ dangerouslySetInnerHTML, className }) => {
+export const makeArrow = (row, column, clockwise, rotateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove) => ({ dangerouslySetInnerHTML, className }) => {
   if(!dangerouslySetInnerHTML) return null;
 
   return (
@@ -11,7 +11,7 @@ export const makeArrow = (row, column, clockwise, rotateQuadrant, aiRotation, ac
     e.stopPropagation();
     // We are showing a previous move,
     // you cannot click to rotate currently
-    if(showPreviousMove) return false;
+    if(showLastMove) return false;
 
     rotateQuadrant(row, column, clockwise);
   }
@@ -26,7 +26,7 @@ export const makeArrow = (row, column, clockwise, rotateQuadrant, aiRotation, ac
       classNames.push('computed');
     }
 
-    if(showPreviousMove && isSameRotation(lastRotation)) {
+    if(showLastMove && isSameRotation(lastRotation)) {
       classNames.push('last-rotation');
     }
 

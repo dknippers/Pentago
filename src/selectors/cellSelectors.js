@@ -21,15 +21,17 @@ export const getAvailableCells = createSelector(
 
 const getSortedCells = createSelector(
   getCells,
-  cells => cells.sort((x,y) => {
-    if(x.row > y.row) return 1;
-    if(x.row < y.row) return -1;
+  cells => {
+    return cells.sort((x,y) => {
+      if(x.row > y.row) return 1;
+      if(x.row < y.row) return -1;
 
-    if(x.col > y.col) return 1;
-    if(x.col < y.col) return -1;
+      if(x.col > y.col) return 1;
+      if(x.col < y.col) return -1;
 
-    return 0;
-  })
+      return 0;
+    })
+  }
 );
 
 export const getRows = createSelector(
@@ -97,8 +99,8 @@ function winsInLine(line, player) {
 
 const quadrantMinAndMaxRowOrCol = rowOrCol => [ rowOrCol * Constants.QUADRANT_SIZE, (rowOrCol + 1) * Constants.QUADRANT_SIZE - 1 ];
 
-export const quadrantMinAndMaxRow = (row) => quadrantMinAndMaxRowOrCol(row);
-export const quadrantMinAndMaxCol = (col) => quadrantMinAndMaxRowOrCol(col);
+const quadrantMinAndMaxRow = (row) => quadrantMinAndMaxRowOrCol(row);
+const quadrantMinAndMaxCol = (col) => quadrantMinAndMaxRowOrCol(col);
 
 function getQuadrant(row, col, cells) {
     const [ minRow, maxRow ] = quadrantMinAndMaxRow(row);
@@ -231,7 +233,7 @@ function computePotentialsInLine(line, player) {
   // Chunk by empty or owned by player, drops opponents cells
   const chunks = chunk(line, cell => cell.player == null || (cell.player === player.id ? false : null));
 
-  const result = chunks.reduce((groups, chunk) => {
+  return chunks.reduce((groups, chunk) => {
     const [ isEmpty, cells ] = chunk;
 
     // TODO: Fix this can occur at all (bug in chunk method when last element becomes null)
@@ -323,10 +325,6 @@ function computePotentialsInLine(line, player) {
 
     return groups;
   }, []);
-
-  var moreThan2 = result.some(r => r.length > 2);
-
-  return result;
 }
 
 function maxAdjacentsInLine(line, player) {
@@ -338,11 +336,11 @@ function maxAdjacentsInLine(line, player) {
 
 function scoreForPlayer(metadata, player) {
   const scoreSystem = {
-    [2]: 1,
-    [3]: 10,
-    [4]: 25,
-    [5]: 1000,
-    [6]: 10000,
+    '2': 1,
+    '3': 10,
+    '4': 25,
+    '5': 1000,
+    '6': 10000,
 
     fillQuadrantMultiplier: 4
   };
@@ -391,6 +389,7 @@ export const getBoardScoreByPlayer = createSelector(
   getMetadata,
   getPlayers,
   (metadata, players) => {
+    //console.log(`getBoardScoreByPlayer`);
     const playerScores = {};
 
     for(let player of players) {

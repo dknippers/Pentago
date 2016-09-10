@@ -53,7 +53,7 @@ function checkWinner(dispatch, getState, checkDraw) {
     const availableCells = getAvailableCells(getState());
     if(availableCells.length === 0) {
       dispatch(draw());
-      //setTimeout(() => dispatch(resetGame()), 500);
+      // setTimeout(() => dispatch(resetGame()), 500);
       return true;
     }
   }
@@ -158,17 +158,23 @@ export function hideError() {
 export const BEGIN_TURN = 'BEGIN_TURN';
 export function beginTurn() {
   return (dispatch, getState) => {
-    setTimeout(() => {
-      dispatch({ type: BEGIN_TURN });
+    dispatch({ type: BEGIN_TURN });
 
-      const state = getState();
-      const player = state.players[state.activePlayer];
+    const state = getState();
+    const player = state.players[state.activePlayer];
 
-      if(!player || !player.isAI) return;
+    if(!player || !player.isAI) return;
 
-      // AI => compute its move and do it
-      dispatch(computeAndDoMove(dispatch, getState));
-    }, 0);
+    // AI => compute its move and do it
+    // Only after the first 4 moves
+
+    const availableCells = getAvailableCells(getState());
+    let timeout = 0;
+    if(availableCells.length <= 32) {
+      timeout = 2000;
+    }
+
+    setTimeout(() => dispatch(computeAndDoMove(dispatch, getState)), timeout);
   }
 }
 
@@ -180,10 +186,10 @@ export function updateScores(scores) {
   }
 }
 
-export const SHOW_PREVIOUS_MOVE = 'SHOW_PREVIOUS_MOVE';
-export function showPreviousMove() {
+export const SHOW_LAST_MOVE = 'SHOW_LAST_MOVE';
+export function showLastMove() {
   return {
-    type: SHOW_PREVIOUS_MOVE
+    type: SHOW_LAST_MOVE
   }
 }
 

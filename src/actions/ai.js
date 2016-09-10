@@ -1,9 +1,8 @@
 import { tryPickCell, rotateQuadrant } from './index';
 import {
-  getRows, getColumns, getDiagonals, getQuadrants, getAvailableCells,
-  makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
+  getQuadrants, getAvailableCells, makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
 } from '../selectors/cellSelectors';
-import { getPlayers, makeGetCurrentPlayer, makeGetNextPlayer } from '../selectors/playerSelectors';
+import { makeGetCurrentPlayer, makeGetNextPlayer } from '../selectors/playerSelectors';
 import { chunk, maxElement, shuffle } from '../helpers';
 import * as Constants from '../constants';
 
@@ -17,7 +16,6 @@ const boards = [
 
 let currentPlayer;
 let nextPlayer;
-let getBoardScore;
 
 export function computeMove(showMove = true) {
   return (dispatch, getState) => {
@@ -30,10 +28,10 @@ export function computeMove(showMove = true) {
 
     let moveData = null;
     for(let moveFunction of optimalMovesInOrder) {
-     // console.log(`${currentPlayer.name}: Trying ${moveFunction.name}`);
+      // console.log(`${currentPlayer.name}: Trying ${moveFunction.name}`);
       moveData = moveFunction(getState);
       if(moveData != null) {
-        // console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
+        console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
         break;
       }
     }
@@ -48,10 +46,12 @@ export function computeMove(showMove = true) {
 }
 
 export const COMPUTED_MOVE = 'COMPUTED_MOVE';
-export const computedMove = (move) => ({
-  type: COMPUTED_MOVE,
-  move: move
-});
+export function computedMove(move) {
+  return {
+    type: COMPUTED_MOVE,
+    move: move
+  };
+}
 
 export function computeAndDoMove() {
   return (dispatch, getState) => {
@@ -168,8 +168,6 @@ function makeLine(getState, { player = currentPlayer, min = 3, requiresFullQuadr
       const keys = Object.keys(meta);
       const newMeta = {};
 
-      const numQuadrants = Constants.NUM_QUADRANTS;
-
       for(let key of keys) {
         const potentials = meta[key];
 
@@ -274,7 +272,6 @@ function preventWithOptimalRotation(func, getState, options) {
 
   const { cellId, } = move;
 
-  // Return
   return {
     cellId,
     rotation: optimalRotation(getState, cellId)

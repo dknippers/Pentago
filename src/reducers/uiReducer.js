@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import {
-  SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, RESET_GAME, BEGIN_TURN,
-  SHOW_PREVIOUS_MOVE, HIDE_PREVIOUS_MOVE
+  SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, BEGIN_TURN,
+  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE
 } from '../actions';
 import { COMPUTED_MOVE } from '../actions/ai';
 
@@ -10,7 +10,7 @@ const uiReducer = combineReducers({
   winningCells,
   score,
   computedMove,
-  showPreviousMove
+  showLastMove
 });
 
 export default uiReducer;
@@ -60,9 +60,9 @@ function computedMove(state = null, action){
   }
 }
 
-function showPreviousMove(state = false, action){
+function showLastMove(state = false, action){
   switch(action.type) {
-    case SHOW_PREVIOUS_MOVE:
+    case SHOW_LAST_MOVE:
       return true;
 
     case HIDE_PREVIOUS_MOVE:
