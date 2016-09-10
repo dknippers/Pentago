@@ -68,6 +68,7 @@ body {
 .column-center {
   display: flex;
   flex-direction: column;
+  align-items: center;
   flex: 1;
 }
 .error {
@@ -80,12 +81,10 @@ body {
 .quadrant-row {
   display: flex;
   justify-content: center;
-  flex: 1;
 }
 .quadrant {
   position: relative;
   margin: 5px;
-  max-width: 300px;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -102,7 +101,8 @@ body {
   z-index: -1;
 }
 .quadrant.selected .arrows,
-.quadrant.show-last-move .arrows {
+.quadrant.show-last-move .arrows,
+.quadrant.ai-preview .arrows {
   z-index: 1;
 }
 .quadrant.selected .arrow svg,
@@ -164,7 +164,9 @@ body {
 }
 .board {
   flex: 3 3;
-  max-height: 642px;
+  max-height: 64vmin;
+  max-width: 64vmin;
+  width: 64vmin;
   flex-direction: column;
   display: flex;
 }
@@ -206,11 +208,18 @@ body {
   justify-content: center;
 }
 .cell {
-  max-width: 96px;
-  max-height: 96px;
   margin: 2px;
   border-radius: 5%;
-  flex: 1;
+  flex: 1 0 auto;
+  height: auto;
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+}
+.cell:before {
+  content: ' ';
+  padding-top: 100%;
+  float: left;
 }
 .cell.player-1 {
   background-color: #cc0000;

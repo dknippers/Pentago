@@ -45,22 +45,22 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
       classNames.push('show-last-move');
     }
 
+    if(aiRotation && aiRotation.row === row && aiRotation.column === column) {
+      classNames.push('ai-preview');
+    }
+
     return classNames.join(' ');
   }
 }
 
-const connectState = (state, props) => ({
-  canRotateQuadrant: !state.draw && state.canRotateQuadrant,
-  isSelected: state.ui.selectedQuadrant.row === props.row && state.ui.selectedQuadrant.column === props.column,
-  aiRotation: state.ui.computedMove && state.ui.computedMove.rotation,
-  activePlayerId: state.activePlayer,
-  lastRotation: state.lastMove.rotation,
-  showLastMove: state.ui.showLastMove
-});
-
-const connectDispatch = {
-  rotateQuadrant,
-  selectQuadrant
-};
-
-export default connect(connectState, connectDispatch)(Quadrant);
+export default connect(
+  (state, props) => ({
+    canRotateQuadrant: !state.gameOver && state.canRotateQuadrant,
+    isSelected: state.ui.selectedQuadrant.row === props.row && state.ui.selectedQuadrant.column === props.column,
+    aiRotation: state.ui.computedMove && state.ui.computedMove.rotation,
+    activePlayerId: state.activePlayer,
+    lastRotation: state.lastMove.rotation,
+    showLastMove: state.ui.showLastMove
+  }),
+  { rotateQuadrant, selectQuadrant }
+)(Quadrant);

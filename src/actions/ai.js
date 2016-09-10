@@ -57,6 +57,8 @@ export function computeAndDoMove() {
   return (dispatch, getState) => {
     const state = getState();
 
+    if(state.gameOver) return;
+
     // If we had already computed a move this turn,
     // use that instead of computing a new one again
     const { cellId, rotation } = state.ui.computedMove || computeMove(false)(dispatch, getState);
