@@ -24,7 +24,7 @@ export function tryPickCell(cellId, playerId) {
 }
 
 export const PICK_CELL = 'PICK_CELL';
-function pickCell(cellId, playerId) {
+export function pickCell(cellId, playerId) {
   return {
     type: PICK_CELL,
     cellId,
@@ -32,32 +32,59 @@ function pickCell(cellId, playerId) {
   }
 };
 
-function checkWinner(dispatch, getState, checkDraw) {
-  const players = getPlayers(getState());
-  const winningCellsByPlayer = getWinningCellsByPlayer(getState());
+function checkWinner(dispatch, getState) {
+  const state = getState();
+  const players = getPlayers(state);
+  const winningCellsByPlayer = getWinningCellsByPlayer(state);
 
+  const winners = []; // Will hold objects of { player: <player>, winningCells: <winningCells> }
   for(let player of players) {
     const winningCells = winningCellsByPlayer[player.id];
 
     if(winningCells) {
-      dispatch(playerWon(player.id, winningCells));
-
-      // setTimeout(() => dispatch(resetGame()), 500);
-
-      return true;
+      winners.push({
+        player,
+        winningCells
+      });
     }
   }
 
-  // Full board, no winner => draw
-  if(checkDraw) {
-    const availableCells = getAvailableCells(getState());
-    if(availableCells.length === 0) {
-      dispatch(draw());
-      // setTimeout(() => dispatch(resetGame()), 500);
-      return true;
+  // Do we have a single winner?
+  if(winners.length === 1) {
+    const { player, winningCells } = winners[0];
+
+    dispatch(playerWon(player.id, winningCells));
+
+    // Reset, if specified
+    if(state.options.automaticRestart) {
+      setTimeout(() => dispatch(restartGame()), 500);
     }
+
+    return true;
   }
 
+  // If both players won it's a draw
+  let isDraw = winners.length === players.length;
+
+  // Also a draw => full board
+  // We only check this when necessary
+  if(!isDraw) {
+    const availableCells = getAvailableCells(state);
+    isDraw = availableCells.length === 0;
+  }
+
+  if(isDraw) {
+    dispatch(draw());
+
+    // Reset, if specified
+    if(state.options.automaticRestart) {
+      setTimeout(() => dispatch(restartGame()), 500);
+    }
+
+    return true;
+  }
+
+  // Otherwise, no winner or draw
   return false;
 }
 
@@ -77,10 +104,10 @@ export function playerWon(player, cells) {
   }
 }
 
-export const RESET_GAME = 'RESET_GAME';
-export function resetGame() {
+export const RESTART_GAME = 'RESTART_GAME';
+export function restartGame() {
   return (dispatch, state) => {
-    dispatch({ type: RESET_GAME });
+    dispatch({ type: RESTART_GAME });
     dispatch(beginTurn());
   }
 }
@@ -166,14 +193,10 @@ export function beginTurn() {
     if(!player || !player.isAI) return;
 
     // AI => compute its move and do it
-    // Only after the first 4 moves
+    // With a delay after the first 4 moves
 
     const availableCells = getAvailableCells(getState());
-    let timeout = 0;
-    if(availableCells.length <= 32) {
-      timeout = 2000;
-    }
-
+    const timeout = availableCells.length <= 32 ? state.options.aiMoveDelay : 0;
     setTimeout(() => dispatch(computeAndDoMove(dispatch, getState)), timeout);
   }
 }
@@ -222,5 +245,21 @@ export const TOGGLE_OPTIONS = 'TOGGLE_OPTIONS';
 export function toggleOptions() {
   return {
     type: TOGGLE_OPTIONS
+  }
+}
+
+export const SET_AI_MOVE_DELAY = 'SET_AI_MOVE_DELAY';
+export function setAIMoveDelay(timeout) {
+  return {
+    type: SET_AI_MOVE_DELAY,
+    timeout
+  }
+}
+
+export const SET_AUTOMATIC_RESTART = 'SET_AUTOMATIC_RESTART';
+export function setAutomaticRestart(enabled) {
+  return {
+    type: SET_AUTOMATIC_RESTART,
+    enabled
   }
 }

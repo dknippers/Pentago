@@ -295,9 +295,8 @@ button.btn {
 .options {
   display: none;
   flex-direction: column;
-  justify-content: space-around;
   z-index: 3;
-  opacity: 0.9;
+  opacity: 0.95;
   position: absolute;
   left: 0;
   top: 0;
@@ -306,11 +305,41 @@ button.btn {
   background-color: #2e3436;
   align-items: center;
 
+  hr { width: 100%; }
+
+  .option-columns {
+    display: flex;
+    max-width: 95vw;
+
+    .option-column {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+      font-size: 14px;
+      max-width: 48vw;
+
+      @media screen and (max-width: 400px) {
+        font-size: 12px;
+      }
+
+      > * {
+        user-select: none;
+        margin: 1vh;
+        height: 3vh;
+        min-height: 20px;
+      }
+
+      > input[type="checkbox"] {
+        transform: scale(1.25);
+      }
+    }
+  }
+
   &.visible {
     display: flex;
   }
 
-  input[type="checkbox"], button {
+  input[type="checkbox"], button, label {
     &:hover { cursor: pointer; }
   }
 }

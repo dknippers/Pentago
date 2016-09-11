@@ -270,9 +270,8 @@ button.btn:hover {
 .options {
   display: none;
   flex-direction: column;
-  justify-content: space-around;
   z-index: 3;
-  opacity: 0.9;
+  opacity: 0.95;
   position: absolute;
   left: 0;
   top: 0;
@@ -281,10 +280,39 @@ button.btn:hover {
   background-color: #2e3436;
   align-items: center;
 }
+.options hr {
+  width: 100%;
+}
+.options .option-columns {
+  display: flex;
+  max-width: 95vw;
+}
+.options .option-columns .option-column {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  font-size: 14px;
+  max-width: 48vw;
+}
+@media screen and (max-width: 400px) {
+  .options .option-columns .option-column {
+    font-size: 12px;
+  }
+}
+.options .option-columns .option-column > * {
+  user-select: none;
+  margin: 1vh;
+  height: 3vh;
+  min-height: 20px;
+}
+.options .option-columns .option-column > input[type="checkbox"] {
+  transform: scale(1.25);
+}
 .options.visible {
   display: flex;
 }
 .options input[type="checkbox"]:hover,
-.options button:hover {
+.options button:hover,
+.options label:hover {
   cursor: pointer;
 }

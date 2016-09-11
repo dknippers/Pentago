@@ -4,7 +4,7 @@ import playersReducer from './playersReducer';
 import uiReducer from './uiReducer';
 import optionsReducer from './optionsReducer';
 import {
-  PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN, PLAYER_WON, DRAW, RESET_GAME,
+  PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN, PLAYER_WON, DRAW, RESTART_GAME,
   UPDATE_SCORES
 } from '../actions';
 
@@ -30,7 +30,7 @@ function activePlayer(state = 1, action) {
     case ROTATE_QUADRANT:
       return (state % 2) + 1;
 
-    case RESET_GAME:
+    case RESTART_GAME:
       return 1;
 
     default: return state;
@@ -49,7 +49,7 @@ function lastMove(state = {}, action) {
       // Add rotation to current player
       return Object.assign({}, state, { rotation: { row, column, clockwise } });
 
-    case(RESET_GAME):
+    case(RESTART_GAME):
       return {};
 
     default: return state;
@@ -61,7 +61,7 @@ function winner(state = null, action) {
     case PLAYER_WON:
       return action.player;
 
-    case RESET_GAME:
+    case RESTART_GAME:
       return null;
 
     default: return state;
@@ -74,7 +74,7 @@ function gameOver(state = false, action) {
     case DRAW:
       return true;
 
-    case RESET_GAME:
+    case RESTART_GAME:
       return false;
 
     default: return state;
@@ -100,7 +100,7 @@ function canPickCell(state = false, action) {
       return true;
 
     case(PICK_CELL):
-    case(RESET_GAME):
+    case(RESTART_GAME):
       return false;
 
     default: return state;
@@ -110,7 +110,7 @@ function canPickCell(state = false, action) {
 function canRotateQuadrant(state = false, action) {
   switch(action.type) {
     case(ROTATE_QUADRANT):
-    case(RESET_GAME):
+    case(RESTART_GAME):
       return false;
 
     case(PICK_CELL):
@@ -125,7 +125,7 @@ function scores(state = {}, action) {
     case(UPDATE_SCORES):
       return action.scores;
 
-    case(RESET_GAME):
+    case(RESTART_GAME):
       return {};
 
     default: return state;

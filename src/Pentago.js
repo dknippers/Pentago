@@ -6,7 +6,7 @@ const Pentago = () => (
   <div>
     <Game />
     {
-      // <DevTools />
+       // <DevTools />
     }
   </div>
 )

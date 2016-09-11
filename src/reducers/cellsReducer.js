@@ -1,4 +1,4 @@
-import { PICK_CELL, ROTATE_QUADRANT, RESET_GAME } from '../actions';
+import { PICK_CELL, ROTATE_QUADRANT, RESTART_GAME } from '../actions';
 import { byId } from '../helpers';
 import { makeGetRotatedQuadrant } from '../selectors/cellSelectors';
 
@@ -41,7 +41,7 @@ function cells(state = initialState, action) {
 
       return Object.assign({}, state, rotatedQuadrant);
 
-    case RESET_GAME:
+    case RESTART_GAME:
       return byId(allCells);
 
 		default: return state;

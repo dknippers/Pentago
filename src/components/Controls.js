@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { computeMove, computeAndDoMove } from '../actions/ai';
-import { showLastMove, hideLastMove, resetGame, toggleOptions } from '../actions';
+import { computeMove, hideComputedMove, computeAndDoMove } from '../actions/ai';
+import { showLastMove, hideLastMove, restartGame, toggleOptions } from '../actions';
 
 const Controls = ({
-  gameOver, hasPreviousMove, showingLastMove, showingOptions,
-  computeMove, computeAndDoMove, showLastMove, hideLastMove, resetGame, toggleOptions
+  gameOver, hasPreviousMove, showingLastMove, showingOptions, hasComputedMove,
+  computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions
 }) => {
   return (
     <div className="controls">
@@ -17,11 +17,18 @@ const Controls = ({
         }
 
         { gameOver &&
-          <button className="btn" type="button" onClick={ () => resetGame() }>Reset game</button>
+          <button className="btn" type="button" onClick={ () => restartGame() }>Restart game</button>
         }
 
-        { !gameOver && <button className="btn" type="button" onClick={ computeMove }>Compute AI move</button> }
-        { !gameOver && <button className="btn" type="button" onClick={ computeAndDoMove }>Execute AI move</button> }
+        { !gameOver &&
+          (hasComputedMove
+            ? <button className="btn" type="button" onClick={ hideComputedMove }>Hide AI move</button>
+            : <button className="btn" type="button" onClick={ computeMove }>Compute AI move</button>)
+        }
+
+        { !gameOver &&
+          <button className="btn" type="button" onClick={ computeAndDoMove }>Execute AI move</button>
+        }
 
         { !showingOptions && <button className="btn" type="button" onClick={ toggleOptions }>Options</button> }
       </div>
@@ -41,7 +48,8 @@ export default connect(
     gameOver: state.gameOver,
     hasPreviousMove: state.lastMove.cellId != null,
     showingLastMove: state.ui.showLastMove,
-    showingOptions: state.ui.showOptions
+    showingOptions: state.ui.showOptions,
+    hasComputedMove: state.ui.computedMove != null
   }),
-  { computeMove, computeAndDoMove, showLastMove, hideLastMove, resetGame, toggleOptions }
+  { computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions }
 )(Controls);

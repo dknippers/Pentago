@@ -53,6 +53,13 @@ export function computedMove(move) {
   };
 }
 
+export const HIDE_COMPUTED_MOVE = 'HIDE_COMPUTED_MOVE';
+export function hideComputedMove() {
+  return {
+    type: HIDE_COMPUTED_MOVE
+  };
+}
+
 export function computeAndDoMove() {
   return (dispatch, getState) => {
     const state = getState();
