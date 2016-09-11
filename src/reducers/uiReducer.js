@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import {
   SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, BEGIN_TURN,
-  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE, RESET_GAME
+  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE, RESET_GAME, TOGGLE_OPTIONS
 } from '../actions';
 import { COMPUTED_MOVE } from '../actions/ai';
 
@@ -10,7 +10,8 @@ const uiReducer = combineReducers({
   winningCells,
   score,
   computedMove,
-  showLastMove
+  showLastMove,
+  showOptions
 });
 
 export default uiReducer;
@@ -21,7 +22,8 @@ function selectedQuadrant(state = {}, action) {
       const { row, column } = action;
       return Object.assign({}, { row, column });
 
-    case(ROTATE_QUADRANT):
+    case ROTATE_QUADRANT:
+    case RESET_GAME:
       return {};
 
     default: return state;
@@ -42,7 +44,7 @@ function winningCells(state = [], action) {
 
 function score(state = {}, action) {
   switch(action.type) {
-    case(PLAYER_WON):
+    case PLAYER_WON:
       return Object.assign({}, state, {
         [action.player]: (state[action.player] || 0) + 1
       });
@@ -70,6 +72,15 @@ function showLastMove(state = false, action){
 
     case HIDE_PREVIOUS_MOVE:
       return false;
+
+    default: return state;
+  }
+}
+
+function showOptions(state = false, action){
+  switch(action.type) {
+    case TOGGLE_OPTIONS:
+      return !state;
 
     default: return state;
   }

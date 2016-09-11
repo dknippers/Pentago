@@ -50,27 +50,27 @@ h3 {
   display: flex;
   margin: 0 auto;
   justify-content: center;
+}
 
-  button.btn {
-    display: block;
-    padding: 5px 10px;
-    background: none;
-    margin: 10px;
-    color: white;
-    font-family: inherit;
-    font-size: 14px;
-    border-radius: 4px;
-    background-color: #2e3436;
+button.btn {
+  display: block;
+  padding: 5px 10px;
+  background: none;
+  margin: 10px;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  border-radius: 4px;
+  background-color: #2e3436;
 
-    @media screen and (max-width: 400px) {
-      font-size: 12px;
-      padding: 2px 5px;
-    }
+  @media screen and (max-width: 400px) {
+    font-size: 12px;
+    padding: 2px 5px;
+  }
 
-    &:hover {
-      cursor: pointer;
-      filter: invert(100%);
-    }
+  &:hover {
+    cursor: pointer;
+    filter: invert(100%);
   }
 }
 
@@ -86,11 +86,6 @@ h3 {
   background-color: #eeeeec;
   color: #cc0000;
   font-weight: bold;
-}
-
-.quadrants-row, .quadrant-row {
-  display: flex;
-  justify-content: center;
 }
 
 .quadrant {
@@ -299,6 +294,8 @@ h3 {
 
 .options {
   display: none;
+  flex-direction: column;
+  justify-content: space-around;
   z-index: 3;
   opacity: 0.9;
   position: absolute;
@@ -307,9 +304,13 @@ h3 {
   right: 0;
   bottom: 0;
   background-color: #2e3436;
-  justify-content: center;
+  align-items: center;
 
-  &.active {
+  &.visible {
     display: flex;
+  }
+
+  input[type="checkbox"], button {
+    &:hover { cursor: pointer; }
   }
 }

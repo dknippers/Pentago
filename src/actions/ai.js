@@ -2,7 +2,7 @@ import { tryPickCell, rotateQuadrant } from './index';
 import {
   getQuadrants, getAvailableCells, makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
 } from '../selectors/cellSelectors';
-import { makeGetCurrentPlayer, makeGetNextPlayer } from '../selectors/playerSelectors';
+import { getCurrentPlayer, getNextPlayer } from '../selectors/playerSelectors';
 import { chunk, maxElement, shuffle } from '../helpers';
 import * as Constants from '../constants';
 
@@ -21,8 +21,8 @@ export function computeMove(showMove = true) {
   return (dispatch, getState) => {
     const state = getState();
 
-    currentPlayer = makeGetCurrentPlayer(state.activePlayer)(state);
-    nextPlayer = makeGetNextPlayer(state.activePlayer)(state);
+    currentPlayer = getCurrentPlayer(state);
+    nextPlayer = getNextPlayer(state);
 
     initBoards(getState);
 

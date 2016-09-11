@@ -40,7 +40,7 @@ body {
   margin: 0 auto;
   justify-content: center;
 }
-.controls .buttons button.btn {
+button.btn {
   display: block;
   padding: 5px 10px;
   background: none;
@@ -52,12 +52,12 @@ body {
   background-color: #2e3436;
 }
 @media screen and (max-width: 400px) {
-  .controls .buttons button.btn {
+  button.btn {
     font-size: 12px;
     padding: 2px 5px;
   }
 }
-.controls .buttons button.btn:hover {
+button.btn:hover {
   cursor: pointer;
   filter: invert(100%);
 }
@@ -72,11 +72,6 @@ body {
   background-color: #eeeeec;
   color: #cc0000;
   font-weight: bold;
-}
-.quadrants-row,
-.quadrant-row {
-  display: flex;
-  justify-content: center;
 }
 .quadrant {
   position: relative;
@@ -274,6 +269,8 @@ body {
 }
 .options {
   display: none;
+  flex-direction: column;
+  justify-content: space-around;
   z-index: 3;
   opacity: 0.9;
   position: absolute;
@@ -282,8 +279,12 @@ body {
   right: 0;
   bottom: 0;
   background-color: #2e3436;
-  justify-content: center;
+  align-items: center;
 }
-.options.active {
+.options.visible {
   display: flex;
+}
+.options input[type="checkbox"]:hover,
+.options button:hover {
+  cursor: pointer;
 }

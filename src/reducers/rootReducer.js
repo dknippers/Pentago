@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import cellsReducer from './cellsReducer';
 import playersReducer from './playersReducer';
 import uiReducer from './uiReducer';
+import optionsReducer from './optionsReducer';
 import {
   PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN, PLAYER_WON, DRAW, RESET_GAME,
   UPDATE_SCORES
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   cells: cellsReducer,
   players: playersReducer,
   ui: uiReducer,
+  options: optionsReducer,
   activePlayer,
   lastMove,
   winner,

@@ -1,9 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { computeMove, computeAndDoMove } from '../actions/ai';
-import { showLastMove, hideLastMove, resetGame } from '../actions';
+import { showLastMove, hideLastMove, resetGame, toggleOptions } from '../actions';
 
-const Controls = ({ gameOver, showingLastMove, computeMove, computeAndDoMove, showLastMove, hideLastMove, hasPreviousMove, resetGame }) => {
+const Controls = ({
+  gameOver, hasPreviousMove, showingLastMove, showingOptions,
+  computeMove, computeAndDoMove, showLastMove, hideLastMove, resetGame, toggleOptions
+}) => {
   return (
     <div className="controls">
       <div className="buttons">
@@ -17,8 +20,10 @@ const Controls = ({ gameOver, showingLastMove, computeMove, computeAndDoMove, sh
           <button className="btn" type="button" onClick={ () => resetGame() }>Reset game</button>
         }
 
-        { !gameOver && <button className="btn" type="button" onClick={ () => computeMove() }>Compute AI move</button> }
-        { !gameOver && <button className="btn" type="button" onClick={ () => computeAndDoMove() }>Execute AI move</button> }
+        { !gameOver && <button className="btn" type="button" onClick={ computeMove }>Compute AI move</button> }
+        { !gameOver && <button className="btn" type="button" onClick={ computeAndDoMove }>Execute AI move</button> }
+
+        { !showingOptions && <button className="btn" type="button" onClick={ toggleOptions }>Options</button> }
       </div>
     </div>
   );
@@ -35,7 +40,8 @@ export default connect(
   state => ({
     gameOver: state.gameOver,
     hasPreviousMove: state.lastMove.cellId != null,
-    showingLastMove: state.ui.showLastMove
+    showingLastMove: state.ui.showLastMove,
+    showingOptions: state.ui.showOptions
   }),
-  { computeMove, computeAndDoMove, showLastMove, hideLastMove, resetGame }
+  { computeMove, computeAndDoMove, showLastMove, hideLastMove, resetGame, toggleOptions }
 )(Controls);

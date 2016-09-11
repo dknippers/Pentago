@@ -199,3 +199,28 @@ export function hideLastMove() {
     type: HIDE_PREVIOUS_MOVE
   }
 }
+
+export const SET_PLAYER_NAME = 'SET_PLAYER_NAME';
+export function setPlayerName(playerId, name) {
+  return {
+    type: SET_PLAYER_NAME,
+    playerId,
+    name
+  }
+}
+
+export const SET_PLAYER_AI = 'SET_PLAYER_AI';
+export function setPlayerAI(playerId, isAI) {
+  return {
+    type: SET_PLAYER_AI,
+    playerId,
+    isAI
+  }
+}
+
+export const TOGGLE_OPTIONS = 'TOGGLE_OPTIONS';
+export function toggleOptions() {
+  return {
+    type: TOGGLE_OPTIONS
+  }
+}
