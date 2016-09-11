@@ -19,14 +19,11 @@ body {
     height: 100%;
 }
 
-#root, #root > div {
-  height: 100%;
-}
-
 .game {
   display: flex;
   text-align: center;
   height: 100%;
+  overflow-y: auto;
 
   &.game-over {
      .cell, .cell:hover {
@@ -36,11 +33,17 @@ body {
 }
 
 h2 {
-  font-size: 3vmin;
+  @media screen and (max-width: 400px) {
+    font-size: 1.1em;
+    margin: 0.75em 0;
+  }
 }
 
 h3 {
-  font-size: 2.25vmin;
+  @media screen and (max-width: 400px) {
+    font-size: 0.85em;
+    margin: 0.75em 0;
+  }
 }
 
 .controls .buttons {
@@ -50,16 +53,21 @@ h3 {
 
   button.btn {
     display: block;
-    padding: 0.5vmin 1vmin;
+    padding: 5px 10px;
     background: none;
-    margin: 1vw;
+    margin: 10px;
     color: white;
     font-family: inherit;
-    font-size: 2vmin;
+    font-size: 14px;
     border-radius: 4px;
     background-color: #2e3436;
 
-     &:hover {
+    @media screen and (max-width: 400px) {
+      font-size: 12px;
+      padding: 2px 5px;
+    }
+
+    &:hover {
       cursor: pointer;
       filter: invert(100%);
     }
@@ -74,7 +82,7 @@ h3 {
 }
 
 .error {
-  padding: 10px;
+  padding: 5vmin;
   background-color: #eeeeec;
   color: #cc0000;
   font-weight: bold;
@@ -87,15 +95,23 @@ h3 {
 
 .quadrant {
   position: relative;
-  margin: 5px;
+  margin: 0.5vmin;
   display: flex;
-  flex: 1;
-  flex-direction: column;
+  flex: 1 0 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width:  calc(3 * (15vmin + 0.5vmin));
+  max-height: calc(3 * (15vmin + 0.5vmin));
+
+  @media screen and (orientation: landscape) {
+    max-width:  calc(3 * (10vh + 0.5vmin));
+    max-height: calc(3 * (10vh + 0.5vmin));
+  }
 
   .arrows {
     position: absolute;
     left: 0;
-    right: 0;
+    top: 0;
     width: 100%;
     height: 100%;
     display: flex;
@@ -163,11 +179,16 @@ h3 {
 
 .board {
   flex: 3 3;
-  max-height: 96vmin;
-  max-width: 96vmin;
+  max-width: calc(6 * (15vmin + 0.5vmin) + 2vmin);
+  max-height: calc(6 * (15vmin + 0.5vmin) + 2vmin);
 
-  width: 96vmin;
-  flex-direction: column;
+  @media screen and (orientation: landscape) {
+    max-width: calc(6 * (10vh + 0.5vmin) + 2vmin);
+    max-height: calc(6 * (10vh + 0.5vmin) + 2vmin);
+  }
+
+  flex-direction: row;
+  flex-wrap: wrap;
   display: flex;
 
   &.disable-cells {
@@ -226,25 +247,26 @@ h3 {
 }
 
 .cell {
-  margin: 2px;
+  margin: 0.25vmin;
   border-radius: 5%;
   flex: 1 0 auto;
-  height: auto;
-  border-style: solid;
-  border-width: 1px;
-  border-color: transparent;
+  width: 15vmin;
+  height: 15vmin;
 
-  &:before {
-    content: ' ';
-    padding-top: 100%;
-    float: left;
+  @media screen and (orientation: landscape) {
+    width: 10vh;
+    height: 10vh;
   }
+
+  border-style: solid;
+  border-width: 0.1vmin;
+  border-color: transparent;
 
   &.player-1 { background-color: @p1-color; }
   &.player-2 { background-color: @p2-color; }
 
   &.empty {
-    border: 1px solid #888a85;
+    border-color: #888a85;
     background-color: transparent;
 
     &.player-1:hover { background-color: @p1-color; }

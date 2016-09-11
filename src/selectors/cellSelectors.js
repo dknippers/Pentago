@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { chunk, transpose, groupBy, maxElement } from '../helpers';
+import { chunk, transpose, groupBy } from '../helpers';
 import { getPlayers } from './playerSelectors';
 import * as Constants from '../constants';
 
@@ -378,7 +378,7 @@ function scoreForPlayer(metadata, player) {
         }
       }
 
-      score.points = score.points + base * multiplier;
+      score.points += base * multiplier;
     }
   }
 

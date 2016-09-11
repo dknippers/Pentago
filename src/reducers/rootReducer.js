@@ -1,8 +1,7 @@
 import { combineReducers } from 'redux';
-import cellsReducer, { initialState as cellsInitialState } from './cellsReducer';
-import playersReducer, { initialState as playersInitialState } from './playersReducer';
+import cellsReducer from './cellsReducer';
+import playersReducer from './playersReducer';
 import uiReducer from './uiReducer';
-import { getAvailableCells, getBoardScoreByPlayer } from '../selectors/cellSelectors';
 import {
   PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN, PLAYER_WON, DRAW, RESET_GAME,
   UPDATE_SCORES

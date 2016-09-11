@@ -10,11 +10,7 @@ import { makeArrow } from './Arrow';
 const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove }) => {
   return (
     <div className={ getClassNames() } onClick={ onClick }>
-      { quadrant.map((row, i) =>
-        <div className="quadrant-row" key={ `quadrant-row-${i}` }>
-          { row.map(cell => <Cell key={ `cell-${ cell.id }` } cell={ cell } /> ) }
-        </div>
-      )}
+      { quadrant.map((row, i) => row.map(cell => <Cell key={ `cell-${ cell.id }` } cell={ cell } /> ) )}
 
       <div className="arrows">
         <Isvg wrapper={ makeArrow.apply(null, getArrowParams(true)) } src={ clockwise } />

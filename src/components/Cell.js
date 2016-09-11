@@ -39,7 +39,7 @@ export default connect(
   (state, props) => ({
       activePlayerId: state.activePlayer,
       lastMove: state.lastMove,
-      isEnabled: !state.ui.showLastMove && !state.draw && state.canPickCell && props.cell.player == null && (state.activePlayer == 0 || !state.players[state.activePlayer].isAI),
+      isEnabled: !state.ui.showLastMove && !state.draw && state.canPickCell && props.cell.player == null && (state.activePlayer === 0 || !state.players[state.activePlayer].isAI),
       canRotateQuadrant: !state.draw && state.canRotateQuadrant,
       isWinningCell: state.ui.winningCells.some(cell => cell.id === props.cell.id),
       isComputedByAi: state.ui.computedMove && state.ui.computedMove.cellId === props.cell.id,

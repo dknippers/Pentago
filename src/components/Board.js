@@ -6,11 +6,11 @@ import { getRows, getQuadrants2D } from '../selectors/cellSelectors';
 const Board = ({ quadrants, rows, players, disableCells, enableQuadrants, showLastMove }) => {
 	return (
     <div className={ getClassNames() }>
-      { quadrants.map((quadrantRow, i) =>
-        <div key={ `quadrant-row-${i}` } className="quadrants-row">
-          { quadrantRow.map((quadrant, j) => <Quadrant key={ `quadrant-${ j }` } row={ i } column={ j } quadrant={ quadrant } />) }
-        </div>
-      )}
+       { quadrants.map((quadrantRow, i) =>
+          quadrantRow.map((quadrant, j) =>
+            <Quadrant key={ `quadrant-${ i }-${ j }` } row={ i } column={ j } quadrant={ quadrant } />
+          )
+       )}
     </div>
 	);
 

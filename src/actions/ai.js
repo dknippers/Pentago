@@ -31,7 +31,7 @@ export function computeMove(showMove = true) {
       // console.log(`${currentPlayer.name}: Trying ${moveFunction.name}`);
       moveData = moveFunction(getState);
       if(moveData != null) {
-        console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
+        // console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
         break;
       }
     }

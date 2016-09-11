@@ -13,24 +13,27 @@ body {
   color: white;
   height: 100%;
 }
-#root,
-#root > div {
-  height: 100%;
-}
 .game {
   display: flex;
   text-align: center;
   height: 100%;
+  overflow-y: auto;
 }
 .game.game-over .cell,
 .game.game-over .cell:hover {
   opacity: 0.25;
 }
-h2 {
-  font-size: 3vmin;
+@media screen and (max-width: 400px) {
+  h2 {
+    font-size: 1.1em;
+    margin: 0.75em 0;
+  }
 }
-h3 {
-  font-size: 2.25vmin;
+@media screen and (max-width: 400px) {
+  h3 {
+    font-size: 0.85em;
+    margin: 0.75em 0;
+  }
 }
 .controls .buttons {
   display: flex;
@@ -39,14 +42,20 @@ h3 {
 }
 .controls .buttons button.btn {
   display: block;
-  padding: 0.5vmin 1vmin;
+  padding: 5px 10px;
   background: none;
-  margin: 1vw;
+  margin: 10px;
   color: white;
   font-family: inherit;
-  font-size: 2vmin;
+  font-size: 14px;
   border-radius: 4px;
   background-color: #2e3436;
+}
+@media screen and (max-width: 400px) {
+  .controls .buttons button.btn {
+    font-size: 12px;
+    padding: 2px 5px;
+  }
 }
 .controls .buttons button.btn:hover {
   cursor: pointer;
@@ -59,7 +68,7 @@ h3 {
   flex: 1;
 }
 .error {
-  padding: 10px;
+  padding: 5vmin;
   background-color: #eeeeec;
   color: #cc0000;
   font-weight: bold;
@@ -71,15 +80,24 @@ h3 {
 }
 .quadrant {
   position: relative;
-  margin: 5px;
+  margin: 0.5vmin;
   display: flex;
-  flex: 1;
-  flex-direction: column;
+  flex: 1 0 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: calc(46.5vmin);
+  max-height: calc(46.5vmin);
+}
+@media screen and (orientation: landscape) {
+  .quadrant {
+    max-width: calc(31.5vh);
+    max-height: calc(31.5vh);
+  }
 }
 .quadrant .arrows {
   position: absolute;
   left: 0;
-  right: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   display: flex;
@@ -151,11 +169,17 @@ h3 {
 }
 .board {
   flex: 3 3;
-  max-height: 96vmin;
-  max-width: 96vmin;
-  width: 96vmin;
-  flex-direction: column;
+  max-width: calc(95vmin);
+  max-height: calc(95vmin);
+  flex-direction: row;
+  flex-wrap: wrap;
   display: flex;
+}
+@media screen and (orientation: landscape) {
+  .board {
+    max-width: calc(65vh);
+    max-height: calc(65vh);
+  }
 }
 .board.disable-cells .cell {
   pointer-events: none;
@@ -195,18 +219,20 @@ h3 {
   justify-content: center;
 }
 .cell {
-  margin: 2px;
+  margin: 0.25vmin;
   border-radius: 5%;
   flex: 1 0 auto;
-  height: auto;
+  width: 15vmin;
+  height: 15vmin;
   border-style: solid;
-  border-width: 1px;
+  border-width: 0.1vmin;
   border-color: transparent;
 }
-.cell:before {
-  content: ' ';
-  padding-top: 100%;
-  float: left;
+@media screen and (orientation: landscape) {
+  .cell {
+    width: 10vh;
+    height: 10vh;
+  }
 }
 .cell.player-1 {
   background-color: #cc0000;
@@ -215,7 +241,7 @@ h3 {
   background-color: #3465a4;
 }
 .cell.empty {
-  border: 1px solid #888a85;
+  border-color: #888a85;
   background-color: transparent;
 }
 .cell.empty.player-1:hover {

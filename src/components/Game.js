@@ -6,7 +6,6 @@ import ErrorMessage from './ErrorMessage';
 import OptionsWindow from './OptionsWindow';
 import Score from './Score';
 import { getPlayers } from '../selectors/playerSelectors';
-import { computeMove, computeAndDoMove } from '../actions/ai';
 
 const Game = ({ activePlayer, winner, gameOver, players, score, boardScores, computeMove, computeAndDoMove }) => {
   return (
