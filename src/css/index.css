@@ -23,6 +23,20 @@ body {
 .game.game-over .cell:hover {
   opacity: 0.25;
 }
+.game.player-1 .board.enable-quadrants .quadrant:hover,
+.game.player-1 .board.enable-quadrants .quadrant.selected {
+  outline: 4px solid #cc0000;
+}
+.game.player-1 .cell.empty:hover {
+  background-color: #cc0000;
+}
+.game.player-2 .board.enable-quadrants .quadrant:hover,
+.game.player-2 .board.enable-quadrants .quadrant.selected {
+  outline: 4px solid #3465a4;
+}
+.game.player-2 .cell.empty:hover {
+  background-color: #3465a4;
+}
 @media screen and (max-width: 400px) {
   h2 {
     font-size: 1.1em;
@@ -193,20 +207,14 @@ button.btn:hover {
 .board.show-last-move .cell.last-move {
   opacity: 1;
 }
-.board.enable-quadrants .quadrant .cell {
-  opacity: 0.6;
+.board.enable-quadrants .quadrant:hover {
+  cursor: pointer;
 }
 .board.enable-quadrants .quadrant.selected .cell {
   opacity: 1;
 }
-.board.enable-quadrants .quadrant:hover {
-  cursor: pointer;
-}
-.board.enable-quadrants .quadrant:hover .cell {
-  opacity: 1;
-}
-.board.enable-quadrants .quadrant:hover .cell:hover {
-  cursor: pointer;
+.board.enable-quadrants .quadrant.not-selected .cell {
+  opacity: 0.5;
 }
 .row {
   display: flex;
@@ -238,12 +246,6 @@ button.btn:hover {
 .cell.empty {
   border-color: #888a85;
   background-color: transparent;
-}
-.cell.empty.player-1:hover {
-  background-color: #cc0000;
-}
-.cell.empty.player-2:hover {
-  background-color: #3465a4;
 }
 .cell.empty:hover {
   cursor: pointer;

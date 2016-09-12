@@ -7,7 +7,7 @@ import counterClockwise from '../svg/counter-clockwise.svg';
 import Isvg from 'react-inlinesvg';
 import { makeArrow } from './Arrow';
 
-const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove }) => {
+const Quadrant = ({ quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove }) => {
   return (
     <div className={ getClassNames() } onClick={ onClick }>
       { quadrant.map((row, i) => row.map(cell => <Cell key={ `cell-${ cell.id }` } cell={ cell } /> ) )}
@@ -37,6 +37,10 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
       classNames.push('selected');
     }
 
+    if(hasSelectedQuadrant && !isSelected) {
+      classNames.push('not-selected');
+    }
+
     if(showLastMove && lastRotation != null && lastRotation.row === row && lastRotation.column === column) {
       classNames.push('show-last-move');
     }
@@ -52,6 +56,7 @@ const Quadrant = ({ quadrant, canRotateQuadrant, isSelected, row, column, rotate
 export default connect(
   (state, props) => ({
     canRotateQuadrant: !state.gameOver && state.canRotateQuadrant,
+    hasSelectedQuadrant: state.ui.selectedQuadrant.row != null,
     isSelected: state.ui.selectedQuadrant.row === props.row && state.ui.selectedQuadrant.column === props.column,
     aiRotation: state.ui.computedMove && state.ui.computedMove.rotation,
     activePlayerId: state.activePlayer,

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { getPlayers } from '../selectors/playerSelectors';
 import { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart } from '../actions';
 
-const OptionsWindow = ({
+const Options = ({
   players, isVisible, aiMoveDelay, automaticRestart,
   setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart
 }) => {
@@ -60,4 +60,4 @@ export default connect(
     automaticRestart: state.options.automaticRestart
   }),
   { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart }
-)(OptionsWindow);
+)(Options);

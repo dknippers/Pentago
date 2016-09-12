@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
   error,
   canPickCell,
   canRotateQuadrant,
-  scores
+  // scores
 });
 
 export default rootReducer;

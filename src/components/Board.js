@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import Quadrant from './Quadrant';
-import { getRows, getQuadrants2D } from '../selectors/cellSelectors';
+import { getQuadrants2D } from '../selectors/cellSelectors';
+import { getActivePlayer } from '../selectors/playerSelectors';
 
-const Board = ({ quadrants, rows, players, disableCells, enableQuadrants, showLastMove }) => {
+const Board = ({ quadrants, disableCells, enableQuadrants, showLastMove }) => {
 	return (
     <div className={ getClassNames() }>
        { quadrants.map((quadrantRow, i) =>
@@ -36,10 +37,8 @@ const Board = ({ quadrants, rows, players, disableCells, enableQuadrants, showLa
 
 export default connect(
   state => ({
-      rows: getRows(state),
       quadrants: getQuadrants2D(state),
-      players: state.players,
-      disableCells: state.gameOver || !state.canPickCell || (state.activePlayer > 0 && state.players[state.activePlayer].isAI),
+      disableCells: state.gameOver || !state.canPickCell || getActivePlayer(state).isAI,
       enableQuadrants: !state.gameOver && state.canRotateQuadrant,
       showLastMove: state.ui.showLastMove
   })

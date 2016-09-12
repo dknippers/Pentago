@@ -1,21 +1,27 @@
 import { createSelector } from 'reselect';
 
-const initPlayers = state => state.players;
+const getPlayersById = state => state.players;
 const getActivePlayerId = state => state.activePlayer;
+const getNextPlayerId = state => (state.activePlayer % 2) + 1;
 
 export const getPlayers = createSelector(
-  initPlayers,
+  getPlayersById,
   playersById => Object.keys(playersById).map(id => playersById[id])
 )
 
-export const getCurrentPlayer = createSelector(
-  getPlayers,
+export const getPlayer = playerId => createSelector(
+  getPlayersById,
+  playersById => playersById[playerId]
+);
+
+export const getActivePlayer = createSelector(
+  getPlayersById,
   getActivePlayerId,
-  (players, activePlayerId) => players.find(player => player.id === activePlayerId)
+  (playersById, activePlayerId) => playersById[activePlayerId]
 );
 
 export const getNextPlayer = createSelector(
-  getPlayers,
-  getActivePlayerId,
-  (players, activePlayerId) => players.find(player => player.id !== activePlayerId)
+  getPlayersById,
+  getNextPlayerId,
+  (playersById, nextPlayerId) => playersById[nextPlayerId]
 );

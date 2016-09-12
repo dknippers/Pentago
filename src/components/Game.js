@@ -3,23 +3,21 @@ import { connect } from 'react-redux';
 import Board from './Board';
 import Controls from './Controls';
 import ErrorMessage from './ErrorMessage';
-import OptionsWindow from './OptionsWindow';
+import StatusMessage from './StatusMessage';
+import Options from './Options';
 import Score from './Score';
-import { getPlayers } from '../selectors/playerSelectors';
+import { getPlayers, getPlayer, getActivePlayer } from '../selectors/playerSelectors';
 
-const Game = ({ activePlayer, winner, gameOver, players, score, boardScores, computeMove, computeAndDoMove }) => {
+const Game = ({ activePlayerId, gameOver, score, computeMove, computeAndDoMove }) => {
   return (
     <div className={ getClassNames() }>
       <div className="column-center">
-        { !gameOver && activePlayer != null && <h2>{ `Player: ${ activePlayer.name }` }</h2> }
-        { gameOver && winner && <h2>{ `${ winner.name } wins!` }</h2> }
-        { gameOver && !winner && <h2>It's a draw</h2> }
-
+        <StatusMessage />
         <Board />
         <Score />
         <Controls />
         <ErrorMessage />
-        <OptionsWindow />
+        <Options />
       </div>
     </div>
   );
@@ -31,17 +29,18 @@ const Game = ({ activePlayer, winner, gameOver, players, score, boardScores, com
       classNames.push('game-over');
     }
 
+    if(activePlayerId) {
+      classNames.push(`player-${ activePlayerId }`);
+    }
+
     return classNames.join(' ');
   }
 }
 
 export default connect(
   state => ({
-    activePlayer: state.activePlayer > 0 ? state.players[state.activePlayer] : null,
-    winner: state.players[state.winner],
+    activePlayerId: state.activePlayer,
     gameOver: state.gameOver,
-    players: getPlayers(state),
-    score: state.ui.score,
-    boardScores: state.scores
+    score: state.ui.score
   })
 )(Game);

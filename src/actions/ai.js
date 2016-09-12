@@ -2,7 +2,7 @@ import { tryPickCell, rotateQuadrant } from './index';
 import {
   getQuadrants, getAvailableCells, makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
 } from '../selectors/cellSelectors';
-import { getCurrentPlayer, getNextPlayer } from '../selectors/playerSelectors';
+import { getActivePlayer, getNextPlayer } from '../selectors/playerSelectors';
 import { chunk, maxElement, shuffle } from '../helpers';
 import * as Constants from '../constants';
 
@@ -21,7 +21,10 @@ export function computeMove(showMove = true) {
   return (dispatch, getState) => {
     const state = getState();
 
-    currentPlayer = getCurrentPlayer(state);
+    // Game has already ended
+    if(state.gameOver) return { cellId: null, rotation: null };
+
+    currentPlayer = getActivePlayer(state);
     nextPlayer = getNextPlayer(state);
 
     initBoards(getState);
@@ -63,8 +66,6 @@ export function hideComputedMove() {
 export function computeAndDoMove() {
   return (dispatch, getState) => {
     const state = getState();
-
-    if(state.gameOver) return;
 
     // If we had already computed a move this turn,
     // use that instead of computing a new one again

@@ -4,7 +4,7 @@ import { computeMove, hideComputedMove, computeAndDoMove } from '../actions/ai';
 import { showLastMove, hideLastMove, restartGame, toggleOptions } from '../actions';
 
 const Controls = ({
-  gameOver, hasPreviousMove, showingLastMove, showingOptions, hasComputedMove,
+  gameOver, hasPreviousMove, showingLastMove, showingOptions, hasComputedMove, showAIButtons,
   computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions
 }) => {
   return (
@@ -20,13 +20,13 @@ const Controls = ({
           <button className="btn" type="button" onClick={ () => restartGame() }>Restart game</button>
         }
 
-        { !gameOver &&
+        { showAIButtons &&
           (hasComputedMove
             ? <button className="btn" type="button" onClick={ hideComputedMove }>Hide AI move</button>
             : <button className="btn" type="button" onClick={ computeMove }>Compute AI move</button>)
         }
 
-        { !gameOver &&
+        { showAIButtons &&
           <button className="btn" type="button" onClick={ computeAndDoMove }>Execute AI move</button>
         }
 
@@ -49,7 +49,8 @@ export default connect(
     hasPreviousMove: state.lastMove.cellId != null,
     showingLastMove: state.ui.showLastMove,
     showingOptions: state.ui.showOptions,
-    hasComputedMove: state.ui.computedMove != null
+    hasComputedMove: state.ui.computedMove != null,
+    showAIButtons: !state.gameOver && state.canPickCell
   }),
   { computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions }
 )(Controls);
