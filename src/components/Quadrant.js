@@ -20,7 +20,7 @@ const Quadrant = ({ quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected
   )
 
   function onClick(e) {
-    if(!canRotateQuadrant) return;
+    if(!canRotateQuadrant) return null;
 
     e.stopPropagation();
     selectQuadrant(row, column);

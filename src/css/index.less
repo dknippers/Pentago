@@ -8,7 +8,7 @@
 html {
   margin: 0;
   padding: 0;
-  height: 95%;
+  height: 100vh;
 }
 
 body {
@@ -22,7 +22,6 @@ body {
 .game {
   display: flex;
   text-align: center;
-  height: 100%;
   overflow-y: auto;
 
   &.game-over {
@@ -33,7 +32,13 @@ body {
 
   &.player-1 {
     .board.enable-quadrants {
-      .quadrant:hover, .quadrant.selected { outline: 4px solid @p1-color; }
+      .quadrant:hover { outline: 4px solid @p1-color; }
+
+      @media (pointer: coarse) {
+        .quadrant:hover { outline: none; }
+      }
+
+      .quadrant.selected { outline: 4px solid @p1-color; }
     }
 
     .cell.empty:hover { background-color: @p1-color; }
@@ -41,7 +46,13 @@ body {
 
   &.player-2 {
     .board.enable-quadrants {
-      .quadrant:hover, .quadrant.selected { outline: 4px solid @p2-color; }
+      .quadrant:hover { outline: 4px solid @p2-color; }
+
+      @media (pointer: coarse) {
+        .quadrant:hover { outline: none; }
+      }
+
+      .quadrant.selected { outline: 4px solid @p2-color; }
     }
 
     .cell.empty:hover { background-color: @p2-color; }
@@ -62,31 +73,40 @@ h3 {
   }
 }
 
-.controls .buttons {
-  display: flex;
-  margin: 0 auto;
-  justify-content: center;
+.controls {
+  padding: 1.5vw 0;
+
+  .buttons {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+  }
 }
 
 button.btn {
-  display: block;
-  padding: 5px 10px;
-  background: none;
-  margin: 10px;
+  width: 48vw;
+  max-width: 200px;
+  height: 6vh;
+  min-height: 25px;
   color: white;
   font-family: inherit;
   font-size: 14px;
-  border-radius: 4px;
   background-color: #2e3436;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
-  @media screen and (max-width: 400px) {
-    font-size: 12px;
-    padding: 2px 5px;
-  }
+  &:focus { outline: none; }
 
   &:hover {
     cursor: pointer;
     filter: invert(100%);
+  }
+
+  @media screen and (max-width: 400px) {
+    font-size: 12px;
+  }
+
+  @media (pointer: coarse) {
+     &:hover { filter: none; }
   }
 }
 
@@ -95,6 +115,8 @@ button.btn {
   flex-direction: column;
   align-items: center;
   flex: 1;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 .error {
@@ -113,6 +135,8 @@ button.btn {
   flex-wrap: wrap;
   max-width:  calc(3 * (15vmin + 0.5vmin));
   max-height: calc(3 * (15vmin + 0.5vmin));
+
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
   @media screen and (orientation: landscape) {
     max-width:  calc(3 * (10vh + 0.5vmin));
@@ -145,6 +169,7 @@ button.btn {
     justify-content: center;
     align-items: center;
     flex: 1;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
     &.counter-clockwise { order: 1; }
     &.clockwise { order: 2; }
@@ -157,7 +182,7 @@ button.btn {
       fill: #eeeeec;
       stroke-width: 10px;
       stroke: #eeeeec;
-      opacity: 0.75;
+      opacity: 0.5;
       width: 80%;
       height: 80%;
 
@@ -201,6 +226,7 @@ button.btn {
   flex-direction: row;
   flex-wrap: wrap;
   display: flex;
+  margin: 1.5vw 0;
 
   &.disable-cells {
     .cell {
@@ -213,10 +239,6 @@ button.btn {
   }
 
   &.show-last-move {
-    &:hover, .quadrant .arrows:hover, .quadrant .arrows svg:hover {
-      cursor: not-allowed;
-    }
-
     .cell {
       opacity: 0.25;
 
@@ -229,9 +251,6 @@ button.btn {
   &.enable-quadrants {
     .quadrant {
       &:hover { cursor: pointer; }
-
-      &.selected .cell { opacity: 1; }
-      &.not-selected .cell { opacity: 0.5; }
     }
   }
 }
@@ -248,6 +267,7 @@ button.btn {
   flex: 1 0 auto;
   width: 15vmin;
   height: 15vmin;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
   @media screen and (orientation: landscape) {
     width: 10vh;

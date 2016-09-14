@@ -4,7 +4,7 @@
 html {
   margin: 0;
   padding: 0;
-  height: 95%;
+  height: 100vh;
 }
 body {
   margin: 0;
@@ -16,21 +16,34 @@ body {
 .game {
   display: flex;
   text-align: center;
-  height: 100%;
   overflow-y: auto;
 }
 .game.game-over .cell,
 .game.game-over .cell:hover {
   opacity: 0.25;
 }
-.game.player-1 .board.enable-quadrants .quadrant:hover,
+.game.player-1 .board.enable-quadrants .quadrant:hover {
+  outline: 4px solid #cc0000;
+}
+@media (pointer: coarse) {
+  .game.player-1 .board.enable-quadrants .quadrant:hover {
+    outline: none;
+  }
+}
 .game.player-1 .board.enable-quadrants .quadrant.selected {
   outline: 4px solid #cc0000;
 }
 .game.player-1 .cell.empty:hover {
   background-color: #cc0000;
 }
-.game.player-2 .board.enable-quadrants .quadrant:hover,
+.game.player-2 .board.enable-quadrants .quadrant:hover {
+  outline: 4px solid #3465a4;
+}
+@media (pointer: coarse) {
+  .game.player-2 .board.enable-quadrants .quadrant:hover {
+    outline: none;
+  }
+}
 .game.player-2 .board.enable-quadrants .quadrant.selected {
   outline: 4px solid #3465a4;
 }
@@ -49,37 +62,49 @@ body {
     margin: 0.75em 0;
   }
 }
+.controls {
+  padding: 1.5vw 0;
+}
 .controls .buttons {
   display: flex;
-  margin: 0 auto;
+  flex-flow: row wrap;
   justify-content: center;
 }
 button.btn {
-  display: block;
-  padding: 5px 10px;
-  background: none;
-  margin: 10px;
+  width: 48vw;
+  max-width: 200px;
+  height: 6vh;
+  min-height: 25px;
   color: white;
   font-family: inherit;
   font-size: 14px;
-  border-radius: 4px;
   background-color: #2e3436;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
-@media screen and (max-width: 400px) {
-  button.btn {
-    font-size: 12px;
-    padding: 2px 5px;
-  }
+button.btn:focus {
+  outline: none;
 }
 button.btn:hover {
   cursor: pointer;
   filter: invert(100%);
+}
+@media screen and (max-width: 400px) {
+  button.btn {
+    font-size: 12px;
+  }
+}
+@media (pointer: coarse) {
+  button.btn:hover {
+    filter: none;
+  }
 }
 .column-center {
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 1;
+  justify-content: center;
+  min-height: 100vh;
 }
 .error {
   padding: 5vmin;
@@ -96,6 +121,7 @@ button.btn:hover {
   flex-wrap: wrap;
   max-width: calc(46.5vmin);
   max-height: calc(46.5vmin);
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 @media screen and (orientation: landscape) {
   .quadrant {
@@ -130,6 +156,7 @@ button.btn:hover {
   justify-content: center;
   align-items: center;
   flex: 1;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 .quadrant .arrow.counter-clockwise {
   order: 1;
@@ -148,7 +175,7 @@ button.btn:hover {
   fill: #eeeeec;
   stroke-width: 10px;
   stroke: #eeeeec;
-  opacity: 0.75;
+  opacity: 0.5;
   width: 80%;
   height: 80%;
 }
@@ -183,6 +210,7 @@ button.btn:hover {
   flex-direction: row;
   flex-wrap: wrap;
   display: flex;
+  margin: 1.5vw 0;
 }
 @media screen and (orientation: landscape) {
   .board {
@@ -196,11 +224,6 @@ button.btn:hover {
 .board.disable-cells .cell.winning {
   opacity: 1;
 }
-.board.show-last-move:hover,
-.board.show-last-move .quadrant .arrows:hover,
-.board.show-last-move .quadrant .arrows svg:hover {
-  cursor: not-allowed;
-}
 .board.show-last-move .cell {
   opacity: 0.25;
 }
@@ -209,12 +232,6 @@ button.btn:hover {
 }
 .board.enable-quadrants .quadrant:hover {
   cursor: pointer;
-}
-.board.enable-quadrants .quadrant.selected .cell {
-  opacity: 1;
-}
-.board.enable-quadrants .quadrant.not-selected .cell {
-  opacity: 0.5;
 }
 .row {
   display: flex;
@@ -227,6 +244,7 @@ button.btn:hover {
   flex: 1 0 auto;
   width: 15vmin;
   height: 15vmin;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   border-style: solid;
   border-width: 0.1vmin;
   border-color: transparent;
