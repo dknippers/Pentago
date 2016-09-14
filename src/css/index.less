@@ -41,7 +41,11 @@ body {
       .quadrant.selected { outline: 4px solid @p1-color; }
     }
 
-    .cell.empty:hover { background-color: @p1-color; }
+    .cell.empty {
+      &:hover { background-color: @p1-color; }
+
+      &.ai-preview { border-color: @p1-color; }
+    }
   }
 
   &.player-2 {
@@ -55,7 +59,11 @@ body {
       .quadrant.selected { outline: 4px solid @p2-color; }
     }
 
-    .cell.empty:hover { background-color: @p2-color; }
+    .cell.empty {
+      &:hover { background-color: @p2-color; }
+
+      &.ai-preview { border-color: @p2-color; }
+    }
   }
 }
 
@@ -99,6 +107,14 @@ button.btn {
   &:hover {
     cursor: pointer;
     filter: invert(100%);
+  }
+
+  &:disabled {
+    &:hover {
+      filter: none;
+      cursor: not-allowed;
+    }
+    color: gray;
   }
 
   @media screen and (max-width: 400px) {
@@ -294,9 +310,6 @@ button.btn {
     &.ai-preview {
       border-width: 4px;
       border-style: solid;
-
-      &.player-1 { border-color: @p1-color; }
-      &.player-2 { border-color: @p2-color; }
     }
   }
 
@@ -315,19 +328,21 @@ button.btn {
   flex-direction: column;
   z-index: 3;
   opacity: 0.95;
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
   background-color: #2e3436;
   align-items: center;
+  justify-content: center;
 
   hr { width: 100%; }
 
   .option-columns {
     display: flex;
     max-width: 95vw;
+    margin-bottom: 5vh;
 
     .option-column {
       display: flex;

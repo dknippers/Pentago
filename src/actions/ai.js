@@ -29,13 +29,22 @@ export function computeMove(showMove = true) {
 
     initBoards(getState);
 
+    // It is possible we have already picked a cell,
+    // if we were controlled by a human who picked one
+    // and then switched to being controlled by AI
+    // In that case, just pick the optimal rotation
     let moveData = null;
-    for(let moveFunction of optimalMovesInOrder) {
-      // console.log(`${currentPlayer.name}: Trying ${moveFunction.name}`);
-      moveData = moveFunction(getState);
-      if(moveData != null) {
-        // console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
-        break;
+    if(!state.canPickCell) {
+      moveData = { rotation: optimalRotation(getState) };
+    } else {
+      // Cell + rotation
+      for(let moveFunction of optimalMovesInOrder) {
+        // console.log(`${currentPlayer.name}: Trying ${moveFunction.name}`);
+        moveData = moveFunction(getState);
+        if(moveData != null) {
+          // console.log(`${currentPlayer.name}: Picked ${moveFunction.name}`);
+          break;
+        }
       }
     }
 
@@ -71,15 +80,20 @@ export function computeAndDoMove() {
     // use that instead of computing a new one again
     const { cellId, rotation } = state.ui.computedMove || computeMove(false)(dispatch, getState);
 
+    let gameOver = false;
+
     if(cellId != null) {
-      const gameOver = dispatch(tryPickCell(cellId, currentPlayer.id));
+      gameOver = dispatch(tryPickCell(cellId, currentPlayer.id));
+    }
 
-      if(!gameOver && rotation != null) {
-        const { row, column, clockwise } = rotation;
+    // It is possible to have an AI do only a rotation
+    // when we switch a player to AI after picking a cell,
+    // therefore the rotation is not nested after picking the cell
+    if(!gameOver && rotation != null) {
+      const { row, column, clockwise } = rotation;
 
-        // Rotation (only if we haven't won by placing the cell)
-        dispatch(rotateQuadrant(row, column, clockwise));
-      }
+      // Rotation (only if we haven't won by placing the cell)
+      dispatch(rotateQuadrant(row, column, clockwise));
     }
   }
 }

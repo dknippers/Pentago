@@ -1,5 +1,5 @@
 import { getAvailableCells, getWinningCellsByPlayer, getBoardScoreByPlayer, getCell } from '../selectors/cellSelectors';
-import { getPlayers } from '../selectors/playerSelectors';
+import { getPlayers, getActivePlayerId, getActivePlayer } from '../selectors/playerSelectors';
 import { computeAndDoMove } from './ai';
 
 export const TRY_PICK_CELL = 'TRY_PICK_CELL';
@@ -188,7 +188,7 @@ export function beginTurn() {
     dispatch({ type: BEGIN_TURN });
 
     const state = getState();
-    const player = state.players[state.activePlayer];
+    const player = getActivePlayer(state);
 
     if(!player || !player.isAI) return;
 
@@ -234,11 +234,19 @@ export function setPlayerName(playerId, name) {
 
 export const SET_PLAYER_AI = 'SET_PLAYER_AI';
 export function setPlayerAI(playerId, isAI) {
-  return {
-    type: SET_PLAYER_AI,
-    playerId,
-    isAI
-  }
+  return (dispatch, getState) => {
+    dispatch({
+      type: SET_PLAYER_AI,
+      playerId,
+      isAI
+    });
+
+    // If we just made a player an AI and
+    // it is the active player, execute a move!
+    if(isAI && getActivePlayerId(getState()) === playerId) {
+      dispatch(computeAndDoMove());
+    }
+  };
 }
 
 export const TOGGLE_OPTIONS = 'TOGGLE_OPTIONS';

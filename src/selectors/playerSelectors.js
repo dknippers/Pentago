@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 
-const getPlayersById = state => state.players;
-const getActivePlayerId = state => state.activePlayer;
-const getNextPlayerId = state => (state.activePlayer % 2) + 1;
+export const getPlayersById = state => state.players;
+export const getActivePlayerId = state => state.activePlayer;
+export const getNextPlayerId = state => (state.activePlayer % 2) + 1;
 
 export const getPlayers = createSelector(
   getPlayersById,

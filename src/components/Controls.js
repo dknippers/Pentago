@@ -2,9 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { computeMove, hideComputedMove, computeAndDoMove } from '../actions/ai';
 import { showLastMove, hideLastMove, restartGame, toggleOptions } from '../actions';
+import { getActivePlayer } from '../selectors/playerSelectors';
 
 const Controls = ({
-  gameOver, hasPreviousMove, showingLastMove, showingOptions, hasComputedMove, showAIButtons,
+  gameOver, hasPreviousMove, showingLastMove, showingOptions, hasComputedMove, showAIButtons, disableAIButtons,
   computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions
 }) => {
   return (
@@ -23,11 +24,11 @@ const Controls = ({
         { showAIButtons &&
           (hasComputedMove
             ? <button className="btn" type="button" onClick={ hideComputedMove }>Hide AI move</button>
-            : <button className="btn" type="button" onClick={ computeMove }>Compute AI move</button>)
+            : <button className="btn" type="button" disabled={ disableAIButtons } onClick={ computeMove }>Compute AI move</button>)
         }
 
         { showAIButtons &&
-          <button className="btn" type="button" onClick={ computeAndDoMove }>Execute AI move</button>
+          <button className="btn" type="button" disabled={ disableAIButtons } onClick={ computeAndDoMove }>Execute AI move</button>
         }
 
         { !showingOptions && <button className="btn" type="button" onClick={ toggleOptions }>Options</button> }
@@ -50,7 +51,8 @@ export default connect(
     showingLastMove: state.ui.showLastMove,
     showingOptions: state.ui.showOptions,
     hasComputedMove: state.ui.computedMove != null,
-    showAIButtons: !state.gameOver && state.canPickCell
+    showAIButtons: !state.gameOver,
+    disableAIButtons: !state.canPickCell || (getActivePlayer(state) && getActivePlayer(state).isAI),
   }),
   { computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions }
 )(Controls);
