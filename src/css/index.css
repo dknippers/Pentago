@@ -163,6 +163,9 @@ button.btn:disabled:hover {
 .quadrant .arrow.last-rotation svg {
   display: block;
 }
+.quadrant.animating .arrow {
+  display: none;
+}
 .quadrant .arrow {
   display: flex;
   height: 100%;

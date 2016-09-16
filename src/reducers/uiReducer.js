@@ -1,20 +1,9 @@
 import { combineReducers } from 'redux';
 import {
-  SELECT_QUADRANT, ROTATE_QUADRANT, PLAYER_WON, BEGIN_TURN,
-  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE, RESTART_GAME, TOGGLE_OPTIONS
+  SELECT_QUADRANT, ROTATE_QUADRANT, ANIMATE_QUADRANT, PLAYER_WON, BEGIN_TURN,
+  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE, RESTART_GAME, TOGGLE_OPTIONS, WINNING_CELLS
 } from '../actions';
 import { COMPUTED_MOVE, HIDE_COMPUTED_MOVE } from '../actions/ai';
-
-const uiReducer = combineReducers({
-  selectedQuadrant,
-  winningCells,
-  score,
-  computedMove,
-  showLastMove,
-  showOptions
-});
-
-export default uiReducer;
 
 function selectedQuadrant(state = {}, action) {
   switch(action.type) {
@@ -32,7 +21,7 @@ function selectedQuadrant(state = {}, action) {
 
 function winningCells(state = [], action) {
   switch(action.type) {
-    case(PLAYER_WON):
+    case(WINNING_CELLS):
       return action.cells;
 
     case RESTART_GAME:
@@ -80,7 +69,7 @@ function showLastMove(state = false, action){
   }
 }
 
-function showOptions(state = false, action){
+function showOptions(state = true, action){
   switch(action.type) {
     case TOGGLE_OPTIONS:
       return !state;
@@ -88,3 +77,29 @@ function showOptions(state = false, action){
     default: return state;
   }
 }
+
+function quadrantAnimation(state = null, action) {
+  switch(action.type) {
+    case ANIMATE_QUADRANT:
+      const { row, column, clockwise } = action;
+      return { row, column, clockwise };
+
+    case ROTATE_QUADRANT:
+    case RESTART_GAME:
+      return null;
+
+    default: return state;
+  }
+}
+
+const uiReducer = combineReducers({
+  selectedQuadrant,
+  winningCells,
+  score,
+  computedMove,
+  showLastMove,
+  showOptions,
+  quadrantAnimation,
+});
+
+export default uiReducer;

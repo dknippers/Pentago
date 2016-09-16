@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { computeMove, hideComputedMove, computeAndDoMove } from '../actions/ai';
 import { showLastMove, hideLastMove, restartGame, toggleOptions } from '../actions';
-import { getActivePlayer } from '../selectors/playerSelectors';
+import { activePlayerIsAI } from '../selectors/playerSelectors';
 
 const Controls = ({
   gameOver, hasPreviousMove, showingLastMove, showingOptions, hasComputedMove, showAIButtons, disableAIButtons,
@@ -52,7 +52,7 @@ export default connect(
     showingOptions: state.ui.showOptions,
     hasComputedMove: state.ui.computedMove != null,
     showAIButtons: !state.gameOver,
-    disableAIButtons: !state.canPickCell || (getActivePlayer(state) && getActivePlayer(state).isAI),
+    disableAIButtons: activePlayerIsAI(state)
   }),
   { computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions }
 )(Controls);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import Quadrant from './Quadrant';
-import { getQuadrants2D } from '../selectors/cellSelectors';
+import { getQuadrants2D, getQuadrants2DInitialPosition } from '../selectors/cellSelectors';
 import { getActivePlayer } from '../selectors/playerSelectors';
 
 const Board = ({ quadrants, disableCells, enableQuadrants, showLastMove }) => {

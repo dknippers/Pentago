@@ -152,6 +152,28 @@ export const getQuadrants2D = createSelector(
   }
 )
 
+// Returns the quadrants in a 2D Array (i.e., in rows and columns)
+// in their initial state (i.e., not in their current row/column formation based on rotation,
+// just in their original positions).
+export const getQuadrants2DInitialPosition = createSelector(
+  getCells,
+  cells => {
+    const quadrants = [];
+
+    for(let r = 0; r < Constants.NUM_QUADRANTS; r++) {
+      const row = [];
+
+      for(let c = 0; c < Constants.NUM_QUADRANTS; c++) {
+        row.push(getQuadrant(r, c, cells));
+      }
+
+      quadrants.push(row);
+    }
+
+    return quadrants;
+  }
+)
+
 function rotateClockwise(quadrant) {
   return transpose(quadrant.reverse());
 }

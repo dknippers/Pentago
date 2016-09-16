@@ -176,8 +176,10 @@ button.btn {
   }
 
   &.selected .arrow, .arrow.ai-preview, .arrow.last-rotation {
-    svg {  display: block; }
+    svg { display: block; }
   }
+
+  &.animating .arrow { display: none; }
 
   .arrow {
     display: flex;

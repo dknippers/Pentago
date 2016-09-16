@@ -1,6 +1,9 @@
 import React from 'react';
 
-export const makeArrow = (row, column, clockwise, rotateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove) => ({ dangerouslySetInnerHTML, className }) => {
+export const makeArrow = (
+  row, column, clockwise, rotateQuadrant, animateQuadrant,
+  aiRotation, activePlayerId, lastRotation, showLastMove, isSelected
+) => ({ dangerouslySetInnerHTML, className }) => {
   if(!dangerouslySetInnerHTML) return null;
 
   return (
@@ -12,8 +15,11 @@ export const makeArrow = (row, column, clockwise, rotateQuadrant, aiRotation, ac
     // We are showing a previous move,
     // you cannot click to rotate currently
     if(showLastMove) return false;
+    // Our Quadrant must be selected, otherwise something fishy is going on
+    if(!isSelected) return false;
 
-    rotateQuadrant(row, column, clockwise);
+    // Animate the rotation and do the rotation after
+    animateQuadrant(row, column, clockwise);
   }
 
   function getClassNames() {

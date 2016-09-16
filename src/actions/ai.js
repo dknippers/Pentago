@@ -1,4 +1,4 @@
-import { tryPickCell, rotateQuadrant } from './index';
+import { tryPickCell, rotateQuadrant, animateQuadrant } from './index';
 import {
   getQuadrants, getAvailableCells, makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
 } from '../selectors/cellSelectors';
@@ -92,8 +92,15 @@ export function computeAndDoMove() {
     if(!gameOver && rotation != null) {
       const { row, column, clockwise } = rotation;
 
+      // TODO: Configurable animation
+      const animationsEnabled = true;
+
       // Rotation (only if we haven't won by placing the cell)
-      dispatch(rotateQuadrant(row, column, clockwise));
+      if(animationsEnabled) {
+        dispatch(animateQuadrant(row, column, clockwise));
+      } else {
+        dispatch(rotateQuadrant(row, column, clockwise));
+      }
     }
   }
 }

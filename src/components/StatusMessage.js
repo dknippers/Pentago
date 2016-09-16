@@ -2,7 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getActivePlayer, getPlayer } from '../selectors/playerSelectors';
 
-const StatusMessage = ({ gameOver, activePlayer, winner }) => {
+const StatusMessage = ({ gameIsStarted, gameOver, activePlayer, winner }) => {
+  // If the game has not started yet, display the game title
+  if(!gameIsStarted) {
+    return <h1>Pentago</h1>;
+  }
+
+
   // Game has not ended, but no active player (yet)
   if(!gameOver && activePlayer == null) return null;
 
@@ -19,6 +25,7 @@ const StatusMessage = ({ gameOver, activePlayer, winner }) => {
 
 export default connect(
   state => ({
+    gameIsStarted: state.gameIsStarted,
     gameOver: state.gameOver,
     activePlayer: getActivePlayer(state),
     winner: getPlayer(state.winner)(state)

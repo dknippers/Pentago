@@ -1,15 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Cell from '../components/Cell';
-import { rotateQuadrant, selectQuadrant } from '../actions';
+import { rotateQuadrant, animateQuadrant, selectQuadrant } from '../actions';
 import clockwise from '../svg/clockwise.svg';
 import counterClockwise from '../svg/counter-clockwise.svg';
 import Isvg from 'react-inlinesvg';
 import { makeArrow } from './Arrow';
 
-const Quadrant = ({ quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove }) => {
+const Quadrant = ({
+  quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected, row, column, rotateQuadrant,
+  selectQuadrant, animateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove, quadrantAnimation
+}) => {
   return (
-    <div className={ getClassNames() } onClick={ onClick }>
+    <div className={ getClassNames() } style={ getStyle() } onClick={ onClick }>
       { quadrant.map((row, i) => row.map(cell => <Cell key={ `cell-${ cell.id }` } cell={ cell } /> ) )}
 
       <div className="arrows">
@@ -19,15 +22,25 @@ const Quadrant = ({ quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected
     </div>
   )
 
+  function getStyle() {
+    if(!isThisQuadrant(quadrantAnimation)) return null;
+
+    return {
+      transform: `rotate(${ quadrantAnimation.clockwise ? 90 : -90 }deg)`,
+      transition: `transform 0.5s linear`
+    };
+  }
+
   function onClick(e) {
     if(!canRotateQuadrant) return null;
 
     e.stopPropagation();
+
     selectQuadrant(row, column);
   }
 
   function getArrowParams(clockwise) {
-    return [row, column, clockwise, rotateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove];
+    return [row, column, clockwise, rotateQuadrant, animateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove, isSelected];
   }
 
   function getClassNames() {
@@ -35,10 +48,6 @@ const Quadrant = ({ quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected
 
     if(isSelected) {
       classNames.push('selected');
-    }
-
-    if(hasSelectedQuadrant && !isSelected) {
-      classNames.push('not-selected');
     }
 
     if(showLastMove && lastRotation != null && lastRotation.row === row && lastRotation.column === column) {
@@ -49,7 +58,15 @@ const Quadrant = ({ quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected
       classNames.push('ai-preview');
     }
 
+    if(isThisQuadrant(quadrantAnimation)) {
+      classNames.push('animating');
+    }
+
     return classNames.join(' ');
+  }
+
+  function isThisQuadrant(quadrantObject) {
+    return quadrantObject && quadrantObject.row === row && quadrantObject.column === column;
   }
 }
 
@@ -61,7 +78,8 @@ export default connect(
     aiRotation: state.ui.computedMove && state.ui.computedMove.rotation,
     activePlayerId: state.activePlayer,
     lastRotation: state.lastMove.rotation,
-    showLastMove: state.ui.showLastMove
+    showLastMove: state.ui.showLastMove,
+    quadrantAnimation: state.ui.quadrantAnimation
   }),
-  { rotateQuadrant, selectQuadrant }
+  { rotateQuadrant, animateQuadrant, selectQuadrant }
 )(Quadrant);

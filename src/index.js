@@ -15,4 +15,4 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-store.dispatch(beginTurn());
+// store.dispatch(beginTurn());

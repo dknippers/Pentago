@@ -4,8 +4,8 @@ import playersReducer from './playersReducer';
 import uiReducer from './uiReducer';
 import optionsReducer from './optionsReducer';
 import {
-  PICK_CELL, ROTATE_QUADRANT, SHOW_ERROR, HIDE_ERROR, BEGIN_TURN, PLAYER_WON, DRAW, RESTART_GAME,
-  UPDATE_SCORES
+  PICK_CELL, ROTATE_QUADRANT, ANIMATE_QUADRANT, SHOW_ERROR, HIDE_ERROR,
+  BEGIN_TURN, PLAYER_WON, DRAW, RESTART_GAME, UPDATE_SCORES
 } from '../actions';
 
 const rootReducer = combineReducers({
@@ -13,6 +13,7 @@ const rootReducer = combineReducers({
   players: playersReducer,
   ui: uiReducer,
   options: optionsReducer,
+  gameIsStarted,
   activePlayer,
   lastMove,
   winner,
@@ -43,6 +44,7 @@ function lastMove(state = {}, action) {
       // Erase rotation of previous player
       return { cellId: action.cellId };
 
+    case ANIMATE_QUADRANT:
     case ROTATE_QUADRANT:
       const { row, column, clockwise } = action;
 
@@ -109,6 +111,7 @@ function canPickCell(state = false, action) {
 
 function canRotateQuadrant(state = false, action) {
   switch(action.type) {
+    case(ANIMATE_QUADRANT):
     case(ROTATE_QUADRANT):
     case(RESTART_GAME):
       return false;
@@ -127,6 +130,15 @@ function scores(state = {}, action) {
 
     case(RESTART_GAME):
       return {};
+
+    default: return state;
+  }
+}
+
+function gameIsStarted(state = false, action) {
+  switch(action.type) {
+    case BEGIN_TURN:
+      return true;
 
     default: return state;
   }

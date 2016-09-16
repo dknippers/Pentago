@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getPlayers } from '../selectors/playerSelectors';
-import { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart } from '../actions';
+import { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, beginTurn } from '../actions';
 
 const Options = ({
-  players, isVisible, aiMoveDelay, automaticRestart,
-  setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart
+  gameIsStarted, players, isVisible, aiMoveDelay, automaticRestart,
+  setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, beginTurn
 }) => {
   const player1 = players.find(player => player.id === 1);
   const player2 = players.find(player => player.id === 2);
@@ -37,7 +37,11 @@ const Options = ({
         </div>
       </div>
 
-      { isVisible && <button type="button" className="btn" onClick={ toggleOptions }>Close</button> }
+      { isVisible &&
+        gameIsStarted
+          ? <button type="button" className="btn" onClick={ toggleOptions }>Close</button>
+          : <button type="button" className="btn" onClick={ startGame }>Start game</button>
+      }
     </div>
   )
 
@@ -50,14 +54,20 @@ const Options = ({
 
     return classNames.join(' ');
   }
+
+  function startGame() {
+    toggleOptions();
+    beginTurn();
+  }
 }
 
 export default connect(
   state => ({
+    gameIsStarted: state.gameIsStarted,
     players: getPlayers(state),
     isVisible: state.ui.showOptions,
     aiMoveDelay: state.options.aiMoveDelay,
     automaticRestart: state.options.automaticRestart
   }),
-  { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart }
+  { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, beginTurn }
 )(Options);

@@ -8,7 +8,7 @@ const optionsReducer = combineReducers({
 
 export default optionsReducer;
 
-function aiMoveDelay(state = 2000, action){
+function aiMoveDelay(state = 500, action){
   switch(action.type) {
     case SET_AI_MOVE_DELAY:
       const { timeout } = action;

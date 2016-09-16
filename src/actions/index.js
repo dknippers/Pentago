@@ -17,7 +17,7 @@ export function tryPickCell(cellId, playerId) {
 
     // Score
     const scores = getBoardScoreByPlayer(getState());
-    dispatch(updateScores(scores));
+    // dispatch(updateScores(scores));
 
     return checkWinner(dispatch, getState);
   }
@@ -49,11 +49,17 @@ function checkWinner(dispatch, getState) {
     }
   }
 
+  // Do we have winning cells?
+  if(winners.length > 0) {
+    const winningCells = winners.reduce((cells, winner) => cells.concat(winner.winningCells), []);
+    dispatch(setWinningCells(winningCells));
+  }
+
   // Do we have a single winner?
   if(winners.length === 1) {
-    const { player, winningCells } = winners[0];
+    const { player } = winners[0];
 
-    dispatch(playerWon(player.id, winningCells));
+    dispatch(playerWon(player.id));
 
     // Reset, if specified
     if(state.options.automaticRestart) {
@@ -104,6 +110,14 @@ export function playerWon(player, cells) {
   }
 }
 
+export const WINNING_CELLS = 'WINNING_CELLS'
+export function setWinningCells(cells) {
+  return {
+    type: WINNING_CELLS,
+    cells
+  }
+}
+
 export const RESTART_GAME = 'RESTART_GAME';
 export function restartGame() {
   return (dispatch, state) => {
@@ -121,6 +135,23 @@ export function selectQuadrant(row, column) {
   }
 };
 
+export const ANIMATE_QUADRANT = 'ANIMATE_QUADRANT';
+export function animateQuadrant(row, column, clockwise, duration = 500) {
+  return (dispatch, getState) => {
+    // Animation
+    dispatch({
+      type: ANIMATE_QUADRANT,
+      row,
+      column,
+      clockwise,
+      duration
+    });
+
+    // Actually rotate
+    setTimeout(() => dispatch(rotateQuadrant(row, column, clockwise)), duration);
+  };
+}
+
 export const ROTATE_QUADRANT = 'ROTATE_QUADRANT';
 // Returns: true/false if it's game over after rotation
 export function rotateQuadrant(row, column, clockwise) {
@@ -129,7 +160,7 @@ export function rotateQuadrant(row, column, clockwise) {
 
     // Scores
     const scores = getBoardScoreByPlayer(getState());
-    dispatch(updateScores(scores));
+    // dispatch(updateScores(scores));
 
     const winningRotation = checkWinner(dispatch, getState, true);
 
@@ -192,11 +223,8 @@ export function beginTurn() {
 
     if(!player || !player.isAI) return;
 
-    // AI => compute its move and do it
-    // With a delay after the first 4 moves
-
-    const availableCells = getAvailableCells(getState());
-    const timeout = availableCells.length <= 32 ? state.options.aiMoveDelay : 0;
+    // AI => compute its move and do it with a delay
+    const timeout = state.options.aiMoveDelay;
     setTimeout(() => dispatch(computeAndDoMove(dispatch, getState)), timeout);
   }
 }
