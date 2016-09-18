@@ -3,9 +3,12 @@ import { connect } from 'react-redux';
 import { tryPickCell } from '../actions';
 import { getActivePlayer } from '../selectors/playerSelectors';
 
-const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, isEnabled, canRotateQuadrant, isWinningCell, isComputedByAi, showLastMove }) => {
+const Cell = ({
+  cell, tryPickCell, activePlayerId, lastMove, isEnabled, canRotateQuadrant,
+  isWinningCell, isComputedByAi, showLastMove, animationsEnabled, animationDuration
+}) => {
   return (
-    <span className={ getClassNames() } onClick={ isEnabled ? () => tryPickCell(cell.id, activePlayerId) : null }></span>
+    <span style={ getStyle() } className={ getClassNames() } onClick={ isEnabled ? () => tryPickCell(cell.id, activePlayerId) : null }></span>
   );
 
   function getClassNames() {
@@ -31,6 +34,18 @@ const Cell = ({ cell, tryPickCell, activePlayerId, lastMove, isEnabled, canRotat
 
     return classNames.join(' ');
   }
+
+  function getStyle() {
+    if(animationsEnabled) {
+      const animationDurationInSeconds = animationDuration / 1000;
+
+      return {
+        transition: `background-color ${ animationDurationInSeconds }s`
+      }
+    } else {
+      return null;
+    }
+  }
 }
 
 export default connect(
@@ -41,7 +56,9 @@ export default connect(
       canRotateQuadrant: !state.draw && state.canRotateQuadrant,
       isWinningCell: state.ui.winningCells.some(cell => cell.id === props.cell.id),
       isComputedByAi: state.ui.computedMove && state.ui.computedMove.cellId === props.cell.id,
-      showLastMove: state.ui.showLastMove
+      showLastMove: state.ui.showLastMove,
+      animationsEnabled: state.options.animationsEnabled,
+      animationDuration: state.options.animationDuration,
   }),
   { tryPickCell }
 )(Cell);

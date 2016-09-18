@@ -17,6 +17,7 @@ body {
   display: flex;
   text-align: center;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .game.game-over .cell,
 .game.game-over .cell:hover {

@@ -1,12 +1,13 @@
 import { tryPickCell, rotateQuadrant, animateQuadrant } from './index';
 import {
-  getQuadrants, getAvailableCells, makeGetRotatedQuadrant, getMetadata, getBoardScoreByPlayer
+  getQuadrants, getAvailableCells, makeGetRotatedQuadrant,
+  getMetadata, getBoardScoreByPlayer, getQuadrantId
 } from '../selectors/cellSelectors';
 import { getActivePlayer, getNextPlayer } from '../selectors/playerSelectors';
 import { chunk, maxElement, shuffle } from '../helpers';
 import * as Constants from '../constants';
 
-const boards = [
+let boards = [
   // {
   //   cells: [],
   //   rotation: { row: ..., column: ..., clockwise: ... },
@@ -27,7 +28,7 @@ export function computeMove(showMove = true) {
     currentPlayer = getActivePlayer(state);
     nextPlayer = getNextPlayer(state);
 
-    initBoards(getState);
+    boards = getBoards(getState);
 
     // It is possible we have already picked a cell,
     // if we were controlled by a human who picked one
@@ -92,11 +93,8 @@ export function computeAndDoMove() {
     if(!gameOver && rotation != null) {
       const { row, column, clockwise } = rotation;
 
-      // TODO: Configurable animation
-      const animationsEnabled = true;
-
       // Rotation (only if we haven't won by placing the cell)
-      if(animationsEnabled) {
+      if(state.options.animationsEnabled) {
         dispatch(animateQuadrant(row, column, clockwise));
       } else {
         dispatch(rotateQuadrant(row, column, clockwise));
@@ -107,8 +105,8 @@ export function computeAndDoMove() {
 
 // Build the 9 different boards (non-rotation and 8 rotations)
 // and compute their metadata
-function initBoards(getState) {
-  boards.length = 0;
+function getBoards(getState) {
+  const boards = [];
 
   // The current, non-rotated board
   boards.push(initBoard(getState));
@@ -122,6 +120,8 @@ function initBoards(getState) {
       }
     }
   }
+
+  return boards;
 }
 
 function initBoard(getState, rotation) {
@@ -154,12 +154,11 @@ const optimalMovesInOrder = [
   preventWinningMove,
 
   makeLine4,
-  preventLineInQuadrant,
-
   lineInQuadrant,
+  preventLineInQuadrant,
   preventMakeLine4,
 
-  makeLine3,
+  setupMultipleLinesInQuadrant,
 
   inCenter,
   adjacentToSelf,
@@ -178,18 +177,18 @@ function getBoard(rotation) {
     ));
 }
 
-function makeLine(getState, { player = currentPlayer, min = 3, requiresFullQuadrant = false } = {}) {
+function makeLine(getState, { b = boards, player = currentPlayer, min = 3, requiresFullQuadrant = false } = {}) {
   let optimal = {
     score: null,
     cellId: null,
     rotation: null
   }
 
-  for(let board of boards) {
+  for(let board of b) {
     let rotation = board.rotation;
 
     // Only look at rotations
-    if(!rotation) continue;
+    // if(!rotation) continue;
 
     let meta = board.metadata[player.id];
 
@@ -259,8 +258,8 @@ function makeLine(getState, { player = currentPlayer, min = 3, requiresFullQuadr
 
       const score = getBoardScoreByPlayer(state)[player.id];
 
-      if(requiresFullQuadrant && cells && cells.length === Constants.QUADRANT_SIZE) {
-        rotation = optimalRotation(getState, cell);
+      if(!rotation || (requiresFullQuadrant && cells && cells.length === Constants.QUADRANT_SIZE)) {
+        rotation = optimalRotation(getState, cell.id);
       }
 
       if(optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5)) {
@@ -273,7 +272,7 @@ function makeLine(getState, { player = currentPlayer, min = 3, requiresFullQuadr
     }
   }
 
-  if(optimal.cellId) {
+  if(optimal.cellId != null) {
     return {
       cellId: optimal.cellId,
       rotation: optimal.rotation
@@ -281,8 +280,8 @@ function makeLine(getState, { player = currentPlayer, min = 3, requiresFullQuadr
   }
 }
 
-function winningMove(getState, { player = currentPlayer } = {}) {
-  return makeLine(getState, { min: Constants.AMOUNT_IN_LINE_TO_WIN, player });
+function winningMove(getState, { player = currentPlayer, b = boards } = {}) {
+  return makeLine(getState, { min: Constants.AMOUNT_IN_LINE_TO_WIN, player, b });
 }
 
 function preventWinningMove(getState) {
@@ -307,6 +306,90 @@ function preventWithOptimalRotation(func, getState, options) {
     cellId,
     rotation: optimalRotation(getState, cellId)
   }
+}
+
+// Will try get a setup in 1 quadrant similar to this:
+// | X | X |  |
+// +---+---+--+
+// | X |   |  |
+// +---+---+--+
+// |   |   |  |
+// +---+---+--+
+// i.e. it can always get 3 in a line in a quadrant
+// on the next turn, since there are 2 options here
+function setupMultipleLinesInQuadrant(getState, { player = currentPlayer } = {}) {
+  // We do NOT have to go through all rotations
+  // at first, since we are looking for a setup inside
+  // a single quadrant, rotating a quadrant will not
+  // have a meaningful influence
+
+  // First attempt: brute-force it
+  // This might not be to bad since there are no
+  // rotations involved and we brute-force on
+  // a relatively small set of the board to begin with
+  // -- all potential <quadrant_size - 1> in a line
+  // that are part of the same quadrant
+  const board = boards[0];
+
+  let meta = board.metadata[player.id];
+  let setups = meta[Constants.QUADRANT_SIZE - 1];
+
+  // No setups of the right size at all
+  if(!setups) return null;
+
+  // Select only those with all cells in the same quadrant
+  setups = setups.filter(cells => cells.every(cell => {
+    const quadrant = getQuadrantId(cell);
+    return cells.every(c => quadrant === getQuadrantId(c));
+  }));
+
+
+  // For each group of cells, place a marble in the empty spot
+  // and check if this leads to any potential lines that fill the whole quadrant
+
+  const optimal = { cellId: null, amount: null };
+
+  for(let cells of setups) {
+    const cell = cells.find(cell => cell.player == null);
+
+    // State with current rotated cells
+    // and possibly the given cell
+    const state = Object.assign({}, getState(), {
+      cells: Object.assign({}, board.cells, {
+        [cell.id]: Object.assign({}, board.cells[cell.id], { player: player.id })
+      })
+    });
+
+    const newMeta = getMetadata(state)[player.id];
+
+    // Does this move lead to potential full quadrant lines?
+    if(newMeta[Constants.QUADRANT_SIZE]) {
+      const fullQuadrantLines = newMeta[Constants.QUADRANT_SIZE].filter(cells => cells.every(cell => {
+        const quadrant = getQuadrantId(cell);
+        return cells.every(c => quadrant === getQuadrantId(c));
+      }));
+
+      if(fullQuadrantLines.length > 1) {
+        if(optimal.amount == null || fullQuadrantLines.length > optimal.amount) {
+          optimal.cellId = cell.id;
+          optimal.amount = fullQuadrantLines.length;
+        }
+      }
+    }
+  }
+
+  // Found a good one
+  if(optimal.cellId != null) {
+    return {
+      cellId: optimal.cellId,
+      // The rotation is irrelevant for this specific move
+      // so let's make sure we do the best one :)
+      rotation: optimalRotation(getState, optimal.cellId)
+    }
+  }
+
+  // No luck
+  return null;
 }
 
 function lineInQuadrant(getState, { player = currentPlayer } = {}) {
@@ -408,7 +491,16 @@ function optimalRotation(getState, cellId = null) {
 
     const score = getBoardScoreByPlayer(state)[currentPlayer.id];
 
-    if(optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5)) {
+    // const boards = getBoards(() => state);
+    // const opponentWins = winningMove(() => state, { player: nextPlayer, boards });
+
+    // if(opponentWins) {
+    //   console.log(`Cancelling them plans!`);
+    //   // Cancel plans
+    //   continue;
+    // }
+
+    if(score != null && (optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5))) {
       optimal = {
         score,
         rotation

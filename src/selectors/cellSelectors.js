@@ -152,28 +152,6 @@ export const getQuadrants2D = createSelector(
   }
 )
 
-// Returns the quadrants in a 2D Array (i.e., in rows and columns)
-// in their initial state (i.e., not in their current row/column formation based on rotation,
-// just in their original positions).
-export const getQuadrants2DInitialPosition = createSelector(
-  getCells,
-  cells => {
-    const quadrants = [];
-
-    for(let r = 0; r < Constants.NUM_QUADRANTS; r++) {
-      const row = [];
-
-      for(let c = 0; c < Constants.NUM_QUADRANTS; c++) {
-        row.push(getQuadrant(r, c, cells));
-      }
-
-      quadrants.push(row);
-    }
-
-    return quadrants;
-  }
-)
-
 function rotateClockwise(quadrant) {
   return transpose(quadrant.reverse());
 }
@@ -259,7 +237,7 @@ function computePotentialsInLine(line, player) {
     const [ isEmpty, cells ] = chunk;
 
     // TODO: Fix this can occur at all (bug in chunk method when last element becomes null)
-    if(!cells) return groups;
+    // if(!cells) return groups;
 
     const firstCell = cells[0];
     const firstIdx = line.indexOf(firstCell)
@@ -356,13 +334,13 @@ function maxAdjacentsInLine(line, player) {
   return chunks.map(chunk => chunk[1]).reduce((max, chunk) => chunk && chunk.length > max ? chunk.length : max, 0);
 }
 
-function scoreForPlayer(metadata, player) {
-  const scoreSystem = {
-    '2': 1,
-    '3': 10,
-    '4': 25,
-    '5': 1000,
-    '6': 10000,
+function scoreForPlayer(rows, metadata, player) {
+  const scoreSystemPotentials = {
+    2: 1,
+    3: 10,
+    4: 100,
+    5: 1000,
+    6: 10000,
 
     fillQuadrantMultiplier: 4
   };
@@ -372,9 +350,10 @@ function scoreForPlayer(metadata, player) {
     wins: false
   };
 
+  // Score for potential cells in a line
   const keys = Object.keys(metadata[player.id]);
   for(let n of keys) {
-    let base = scoreSystem[n];
+    let base = scoreSystemPotentials[n];
 
     const chunkedCells = metadata[player.id][n];
 
@@ -386,7 +365,7 @@ function scoreForPlayer(metadata, player) {
       // No emptyCell means it's not a potential of n, but it already IS n,
       // the line is simply not longer. So increase our base accordingly.
       if(!emptyCell) {
-        base = scoreSystem[n + 1];
+        base = scoreSystemPotentials[n + 1];
       } else {
         const qSize = Constants.QUADRANT_SIZE;
         const cellsByQuadrant = chunk(group, cell => `${Math.floor(cell.row / qSize)}${Math.floor(cell.col / qSize)}`).map(chunk => chunk[1]);
@@ -396,7 +375,7 @@ function scoreForPlayer(metadata, player) {
         const completesQuadrant = groupOfEmptyCell.length === Constants.QUADRANT_SIZE;
 
         if(completesQuadrant) {
-          multiplier = scoreSystem.fillQuadrantMultiplier;
+          multiplier = scoreSystemPotentials.fillQuadrantMultiplier;
         }
       }
 
@@ -404,18 +383,84 @@ function scoreForPlayer(metadata, player) {
     }
   }
 
+  // Score for individual cells
+  const scoreSystemCells = {
+    opponent: 0,
+    empty: 1,
+    mine: 4,
+    sameQuadrantMultiplier: 1.5
+  }
+
+  for(let r = 0; r < rows.length; r++) {
+    const row = rows[r];
+
+    for(let c = 0; c < row.length; c++) {
+      const cell = row[c];
+
+      // Only score my cells
+      if(cell.player == null || cell.player !== player.id) continue;
+
+      const cellQuadrantRow = Math.floor(cell.row / Constants.QUADRANT_SIZE);
+      const cellQuadrantCol = Math.floor(cell.col / Constants.QUADRANT_SIZE);
+
+      for(let otherCell of getSurroundingCells(cell, rows)) {
+        const isSameQuadrant =  cellQuadrantRow === (Math.floor(otherCell.row / Constants.QUADRANT_SIZE)) &&
+                                cellQuadrantCol === (Math.floor(otherCell.col / Constants.QUADRANT_SIZE));
+
+        const multiplier = isSameQuadrant ? scoreSystemCells.sameQuadrantMultiplier : 1;
+
+        if(otherCell.player == null) {
+          // Empty cell
+          score.points += scoreSystemCells.empty * multiplier;
+        } else if(otherCell.player === player.id) {
+          // Mine
+          score.points += scoreSystemCells.mine * multiplier;
+        } else if(otherCell.player !== player.id) {
+          // Opponent
+          score.points += scoreSystemCells.opponent;
+        }
+      }
+    }
+  }
+
   return score;
 }
 
+// Yields all cells that surround the given cell
+function getSurroundingCells(cell, rows) {
+  // dx / dy of surrounding cells
+  const coords = [
+    { row: cell.row, col: cell.col - 1     }, // left
+    { row: cell.row, col: cell.col + 1     }, // right
+    { row: cell.row - 1, col: cell.col     }, // top
+    { row: cell.row + 1, col: cell.col     }, // bottom
+    { row: cell.row - 1, col: cell.col - 1 }, // topleft
+    { row: cell.row - 1, col: cell.col + 1 }, // topright
+    { row: cell.row + 1, col: cell.col - 1 }, // bottomleft
+    { row: cell.row + 1, col: cell.col + 1 }  // bottomright
+  ];
+
+  // Return those that exist
+  return coords.reduce((cells, possibleCell) => {
+    const { row, col } = possibleCell;
+    // Does it exist?
+    if(row >= 0 && row < Constants.BOARD_SIZE && col >= 0 && col < Constants.BOARD_SIZE) {
+      cells.push(rows[row][col]);
+    }
+
+    return cells;
+  } , []);
+}
+
 export const getBoardScoreByPlayer = createSelector(
+  getRows,
   getMetadata,
   getPlayers,
-  (metadata, players) => {
-    //console.log(`getBoardScoreByPlayer`);
+  (rows, metadata, players) => {
     const playerScores = {};
 
     for(let player of players) {
-      playerScores[player.id] = scoreForPlayer(metadata, player);
+      playerScores[player.id] = scoreForPlayer(rows, metadata, player);
     }
 
     // This is a 2 player game
@@ -431,3 +476,11 @@ export const getBoardScoreByPlayer = createSelector(
     }
   }
 )
+
+// Yields the ID of the cell's quadrant (0-based index, row to column)
+export const getQuadrantId = cell => {
+  const qRow = Math.floor(cell.row / Constants.QUADRANT_SIZE);
+  const qCol = Math.floor(cell.col / Constants.QUADRANT_SIZE);
+
+  return qRow * Constants.NUM_QUADRANTS + qCol;
+};

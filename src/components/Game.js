@@ -6,15 +6,16 @@ import ErrorMessage from './ErrorMessage';
 import StatusMessage from './StatusMessage';
 import Options from './Options';
 import Score from './Score';
-import { getPlayers, getPlayer, getActivePlayer } from '../selectors/playerSelectors';
 
-const Game = ({ activePlayerId, gameOver, score, computeMove, computeAndDoMove }) => {
+const Game = ({ activePlayerId, gameOver, score, boardScores }) => {
   return (
     <div className={ getClassNames() }>
       <div className="column-center">
         <StatusMessage />
         <Board />
         <Score />
+
+
         <Controls />
         <ErrorMessage />
         <Options />
@@ -41,6 +42,7 @@ export default connect(
   state => ({
     activePlayerId: state.activePlayer,
     gameOver: state.gameOver,
-    score: state.ui.score
+    score: state.ui.score,
+    boardScores: state.scores
   })
 )(Game);

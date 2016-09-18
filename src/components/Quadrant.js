@@ -8,8 +8,8 @@ import Isvg from 'react-inlinesvg';
 import { makeArrow } from './Arrow';
 
 const Quadrant = ({
-  quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected, row, column, rotateQuadrant,
-  selectQuadrant, animateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove, quadrantAnimation
+  quadrant, canRotateQuadrant, hasSelectedQuadrant, isSelected, row, column, rotateQuadrant, selectQuadrant,
+  animateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove, quadrantAnimation, animationsEnabled, animationDuration
 }) => {
   return (
     <div className={ getClassNames() } style={ getStyle() } onClick={ onClick }>
@@ -23,11 +23,13 @@ const Quadrant = ({
   )
 
   function getStyle() {
-    if(!isThisQuadrant(quadrantAnimation)) return null;
+    if(!animationsEnabled || !isThisQuadrant(quadrantAnimation)) return null;
+
+    const animationDurationInSeconds = animationDuration / 1000;
 
     return {
       transform: `rotate(${ quadrantAnimation.clockwise ? 90 : -90 }deg)`,
-      transition: `transform 0.5s linear`
+      transition: `all ${ animationDurationInSeconds }s linear`
     };
   }
 
@@ -40,7 +42,7 @@ const Quadrant = ({
   }
 
   function getArrowParams(clockwise) {
-    return [row, column, clockwise, rotateQuadrant, animateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove, isSelected];
+    return [row, column, clockwise, rotateQuadrant, animateQuadrant, aiRotation, activePlayerId, lastRotation, showLastMove, isSelected, animationsEnabled];
   }
 
   function getClassNames() {
@@ -58,7 +60,7 @@ const Quadrant = ({
       classNames.push('ai-preview');
     }
 
-    if(isThisQuadrant(quadrantAnimation)) {
+    if(isThisQuadrant(quadrantAnimation) && animationsEnabled) {
       classNames.push('animating');
     }
 
@@ -79,7 +81,9 @@ export default connect(
     activePlayerId: state.activePlayer,
     lastRotation: state.lastMove.rotation,
     showLastMove: state.ui.showLastMove,
-    quadrantAnimation: state.ui.quadrantAnimation
+    quadrantAnimation: state.ui.quadrantAnimation,
+    animationsEnabled: state.options.animationsEnabled,
+    animationDuration: state.options.animationDuration
   }),
   { rotateQuadrant, animateQuadrant, selectQuadrant }
 )(Quadrant);

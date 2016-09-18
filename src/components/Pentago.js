@@ -1,12 +1,12 @@
 import React from 'react';
-import Game from './components/Game';
-import DevTools from './components/DevTools';
+import Game from './Game';
+import DevTools from './DevTools';
 
 const Pentago = () => (
   <div>
     <Game />
     {
-      // <DevTools />
+       // <DevTools />
     }
   </div>
 )

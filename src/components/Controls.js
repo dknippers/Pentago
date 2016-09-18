@@ -52,7 +52,7 @@ export default connect(
     showingOptions: state.ui.showOptions,
     hasComputedMove: state.ui.computedMove != null,
     showAIButtons: !state.gameOver,
-    disableAIButtons: activePlayerIsAI(state)
+    disableAIButtons: !state.gameStarted || state.gameOver || activePlayerIsAI(state) || state.ui.isAnimating
   }),
   { computeMove, hideComputedMove, computeAndDoMove, showLastMove, hideLastMove, restartGame, toggleOptions }
 )(Controls);

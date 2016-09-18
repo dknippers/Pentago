@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import Quadrant from './Quadrant';
-import { getQuadrants2D, getQuadrants2DInitialPosition } from '../selectors/cellSelectors';
+import { getQuadrants2D } from '../selectors/cellSelectors';
 import { getActivePlayer } from '../selectors/playerSelectors';
 
 const Board = ({ quadrants, disableCells, enableQuadrants, showLastMove }) => {
@@ -38,7 +38,7 @@ const Board = ({ quadrants, disableCells, enableQuadrants, showLastMove }) => {
 export default connect(
   state => ({
       quadrants: getQuadrants2D(state),
-      disableCells: state.gameOver || !state.canPickCell || getActivePlayer(state).isAI,
+      disableCells: state.gameOver || state.ui.isAnimating || !state.canPickCell || getActivePlayer(state).isAI,
       enableQuadrants: !state.gameOver && state.canRotateQuadrant,
       showLastMove: state.ui.showLastMove
   })

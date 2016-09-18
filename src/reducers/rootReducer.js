@@ -13,7 +13,7 @@ const rootReducer = combineReducers({
   players: playersReducer,
   ui: uiReducer,
   options: optionsReducer,
-  gameIsStarted,
+  gameStarted,
   activePlayer,
   lastMove,
   winner,
@@ -21,7 +21,7 @@ const rootReducer = combineReducers({
   error,
   canPickCell,
   canRotateQuadrant,
-  // scores
+  scores
 });
 
 export default rootReducer;
@@ -135,7 +135,7 @@ function scores(state = {}, action) {
   }
 }
 
-function gameIsStarted(state = false, action) {
+function gameStarted(state = false, action) {
   switch(action.type) {
     case BEGIN_TURN:
       return true;

@@ -1,11 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getPlayers } from '../selectors/playerSelectors';
-import { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, beginTurn } from '../actions';
+import {
+  setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay,
+  setAutomaticRestart, beginTurn, setAnimationsEnabled, setAnimationDuration
+} from '../actions';
 
 const Options = ({
-  gameIsStarted, players, isVisible, aiMoveDelay, automaticRestart,
-  setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, beginTurn
+  gameStarted, players, isVisible, aiMoveDelay, automaticRestart, animationsEnabled, animationDuration,
+  setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, setAnimationsEnabled, setAnimationDuration, beginTurn
 }) => {
   const player1 = players.find(player => player.id === 1);
   const player2 = players.find(player => player.id === 2);
@@ -23,6 +26,10 @@ const Options = ({
           <label htmlFor="player-2-ai">Controlled by AI</label>
 
           <label htmlFor="aiMoveDelay">AI move delay (ms)</label>
+
+          <label htmlFor="animationsEnabled">Animations enabled</label>
+          <label htmlFor="animationDuration">Animation duration (ms)</label>
+
           <label htmlFor="automaticRestart">Autorestart game</label>
         </div>
         <div className="option-column">
@@ -33,12 +40,16 @@ const Options = ({
           <input type="checkbox" id="player-2-ai" checked={ player2.isAI } onChange={ e => setPlayerAI(player2.id, e.target.checked) } />
 
           <input type="text" id="aiMoveDelay" defaultValue={ aiMoveDelay } onBlur={ e => setAIMoveDelay(parseInt(e.target.value, 10)) } />
-          <input type="checkbox" id="automaticRestart" value={ automaticRestart } onChange={ e => setAutomaticRestart(e.target.checked) } />
+
+          <input type="checkbox" id="animationsEnabled" checked={ animationsEnabled } onChange={ e => setAnimationsEnabled(e.target.checked) } />
+          <input type="text" id="animationDuration" defaultValue={ animationDuration } onBlur={ e => setAnimationDuration(parseInt(e.target.value, 10)) } />
+
+          <input type="checkbox" id="automaticRestart" checked={ automaticRestart } onChange={ e => setAutomaticRestart(e.target.checked) } />
         </div>
       </div>
 
       { isVisible &&
-        gameIsStarted
+        gameStarted
           ? <button type="button" className="btn" onClick={ toggleOptions }>Close</button>
           : <button type="button" className="btn" onClick={ startGame }>Start game</button>
       }
@@ -63,11 +74,13 @@ const Options = ({
 
 export default connect(
   state => ({
-    gameIsStarted: state.gameIsStarted,
+    gameStarted: state.gameStarted,
     players: getPlayers(state),
     isVisible: state.ui.showOptions,
     aiMoveDelay: state.options.aiMoveDelay,
-    automaticRestart: state.options.automaticRestart
+    automaticRestart: state.options.automaticRestart,
+    animationsEnabled: state.options.animationsEnabled,
+    animationDuration: state.options.animationDuration
   }),
-  { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, beginTurn }
+  { setPlayerName, setPlayerAI, toggleOptions, setAIMoveDelay, setAutomaticRestart, setAnimationsEnabled, setAnimationDuration, beginTurn }
 )(Options);

@@ -1,8 +1,8 @@
 import React from 'react';
 
 export const makeArrow = (
-  row, column, clockwise, rotateQuadrant, animateQuadrant,
-  aiRotation, activePlayerId, lastRotation, showLastMove, isSelected
+  row, column, clockwise, rotateQuadrant, animateQuadrant, aiRotation,
+  activePlayerId, lastRotation, showLastMove, isSelected, animationsEnabled
 ) => ({ dangerouslySetInnerHTML, className }) => {
   if(!dangerouslySetInnerHTML) return null;
 
@@ -18,8 +18,11 @@ export const makeArrow = (
     // Our Quadrant must be selected, otherwise something fishy is going on
     if(!isSelected) return false;
 
-    // Animate the rotation and do the rotation after
-    animateQuadrant(row, column, clockwise);
+    if(animationsEnabled) {
+      animateQuadrant(row, column, clockwise);
+    } else {
+      rotateQuadrant(row, column, clockwise);
+    }
   }
 
   function getClassNames() {
