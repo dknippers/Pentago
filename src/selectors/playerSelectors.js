@@ -26,6 +26,11 @@ export const getNextPlayer = createSelector(
   (playersById, nextPlayerId) => playersById[nextPlayerId]
 );
 
+export const getOtherPlayer = playerId => createSelector(
+  getPlayersById,
+  playersById => playersById[Object.keys(playersById).find(k => parseInt(k, 10) !== playerId)]
+);
+
 export const activePlayerIsAI = createSelector(
   getActivePlayer,
   player => player.isAI

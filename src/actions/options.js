@@ -65,3 +65,19 @@ export function setAnimationDuration(duration) {
     duration
   }
 }
+
+export const SET_SHOW_LOAD_SAVE_BUTTONS = 'SET_SHOW_LOAD_SAVE_BUTTONS';
+export function setShowLoadSaveButtons(show) {
+  return {
+    type: SET_SHOW_LOAD_SAVE_BUTTONS,
+    show
+  }
+}
+
+export const SET_FIENE_MODE = 'SET_FIENE_MODE';
+export function setFieneMode(on) {
+  return {
+    type: SET_FIENE_MODE,
+    on: !!on
+  }
+}

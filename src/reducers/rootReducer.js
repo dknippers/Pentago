@@ -5,7 +5,8 @@ import uiReducer from './uiReducer';
 import optionsReducer from './optionsReducer';
 import {
   PICK_CELL, ROTATE_QUADRANT, ANIMATE_QUADRANT, SHOW_ERROR, HIDE_ERROR,
-  BEGIN_TURN, PLAYER_WON, DRAW, RESTART_GAME, UPDATE_SCORES
+  BEGIN_TURN, PLAYER_WON, DRAW, RESTART_GAME, UPDATE_SCORES, LOAD_FROM_STORAGE,
+  SAVE_TO_STORAGE, CLEAR_STORAGE
 } from '../actions';
 
 const rootReducer = combineReducers({
@@ -21,10 +22,27 @@ const rootReducer = combineReducers({
   error,
   canPickCell,
   canRotateQuadrant,
-  scores
+  scores,
+  hasStoredState
 });
 
-export default rootReducer;
+export default function(state = {}, action) {
+  state = localStorage(state, action);
+  return rootReducer(state, action);
+}
+
+function localStorage(state = {}, action) {
+  switch(action.type) {
+    case LOAD_FROM_STORAGE:
+      const stored = window.localStorage.state;
+      if(!stored) return state;
+
+      try { return JSON.parse(stored); }
+      catch(e) { return  state; }
+
+    default: return state;
+  }
+}
 
 function activePlayer(state = 1, action) {
   switch(action.type) {
@@ -139,6 +157,22 @@ function gameStarted(state = false, action) {
   switch(action.type) {
     case BEGIN_TURN:
       return true;
+
+    default: return state;
+  }
+}
+
+function hasStoredState(state, action) {
+  if(typeof state === 'undefined') {
+    return window.localStorage.state != null;
+  }
+
+  switch(action.type) {
+    case SAVE_TO_STORAGE:
+      return true;
+
+    case CLEAR_STORAGE:
+      return false;
 
     default: return state;
   }

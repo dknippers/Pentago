@@ -1,4 +1,4 @@
-import { getAvailableCells, getWinningCellsByPlayer, getBoardScoreByPlayer, getCell } from '../selectors/cellSelectors';
+import { getAvailableCells, getWinningCellsByPlayer, getBoardScoreByPlayer, getCell, getQuadrantRowAndColumn } from '../selectors/cellSelectors';
 import { getPlayers, getActivePlayer } from '../selectors/playerSelectors';
 import { computeAndDoMove } from './ai';
 
@@ -14,7 +14,15 @@ export function tryPickCell(cellId, playerId) {
     }
 
     // Cell
-    dispatch(pickCell(cellId, playerId));
+    // The color is only shown in Fiene Mode
+    dispatch(pickCell(cellId, playerId, getState().ui.cellColor));
+
+    // Fiene Mode => we are not picking the quadrant to rotate anymore,
+    // instead we simply rotate the quadrant of the cell in a random direction
+    if(getState().options.fieneMode) {
+      const { row, column } = getQuadrantRowAndColumn(getState(), cellId);
+      dispatch(animateQuadrant(row, column, cellId % 2 == 0));
+    }
 
     // Score
     const scores = getBoardScoreByPlayer(getState());
@@ -25,53 +33,60 @@ export function tryPickCell(cellId, playerId) {
 }
 
 export const PICK_CELL = 'PICK_CELL';
-export function pickCell(cellId, playerId) {
+export function pickCell(cellId, playerId, color) {
   return {
     type: PICK_CELL,
     cellId,
-    playerId
+    playerId,
+    color
   }
 };
 
 function checkWinner(dispatch, getState) {
   const state = getState();
-  const players = getPlayers(state);
-  const winningCellsByPlayer = getWinningCellsByPlayer(state);
+  let isDraw = false;
 
-  const winners = []; // Will hold objects of { player: <player>, winningCells: <winningCells> }
-  for(let player of players) {
-    const winningCells = winningCellsByPlayer[player.id];
+  // In Fiene Mode, no one can ever win
+  if(!state.options.fieneMode) {
+    const players = getPlayers(state);
 
-    if(winningCells) {
-      winners.push({
-        player,
-        winningCells
-      });
-    }
-  }
+    const winningCellsByPlayer = getWinningCellsByPlayer(state);
 
-  // Do we have winning cells?
-  if(winners.length > 0) {
-    const winningCells = winners.reduce((cells, winner) => cells.concat(winner.winningCells), []);
-    dispatch(setWinningCells(winningCells));
-  }
+    const winners = []; // Will hold objects of { player: <player>, winningCells: <winningCells> }
+    for(let player of players) {
+      const winningCells = winningCellsByPlayer[player.id];
 
-  // Do we have a single winner?
-  if(winners.length === 1) {
-    const { player } = winners[0];
-
-    dispatch(playerWon(player.id));
-
-    // Reset, if specified
-    if(state.options.automaticRestart) {
-      setTimeout(() => dispatch(restartGame()), 500);
+      if(winningCells) {
+        winners.push({
+          player,
+          winningCells
+        });
+      }
     }
 
-    return true;
-  }
+    // Do we have winning cells?
+    if(winners.length > 0) {
+      const winningCells = winners.reduce((cells, winner) => cells.concat(winner.winningCells), []);
+      dispatch(setWinningCells(winningCells));
+    }
 
-  // If both players won it's a draw
-  let isDraw = winners.length === players.length;
+    // Do we have a single winner?
+    if(winners.length === 1) {
+      const { player } = winners[0];
+
+      dispatch(playerWon(player.id));
+
+      // Reset, if specified
+      if(state.options.automaticRestart) {
+        setTimeout(() => dispatch(restartGame()), 500);
+      }
+
+      return true;
+    }
+
+    // If both players won it's a draw
+    isDraw = winners.length === players.length;
+  }
 
   // Also a draw => full board
   // We only check this when necessary
@@ -103,11 +118,10 @@ export function draw() {
 }
 
 export const PLAYER_WON = 'PLAYER_WON'
-export function playerWon(player, cells) {
+export function playerWon(player) {
   return {
     type: PLAYER_WON,
-    player,
-    cells
+    player
   }
 }
 
@@ -139,6 +153,14 @@ export function selectQuadrant(row, column) {
 export const ANIMATE_QUADRANT = 'ANIMATE_QUADRANT';
 export function animateQuadrant(row, column, clockwise) {
   return (dispatch, getState) => {
+    const state = getState();
+
+    // If animations are not enabled, fall back to immediate rotation
+    if(!state.options.animationsEnabled) {
+      dispatch(rotateQuadrant(row, column, clockwise));
+      return;
+    }
+
     // Animation
     dispatch({
       type: ANIMATE_QUADRANT,
@@ -245,9 +267,9 @@ export function showLastMove() {
   }
 }
 
-export const HIDE_PREVIOUS_MOVE = 'HIDE_PREVIOUS_MOVE';
+export const HIDE_LAST_MOVE = 'HIDE_LAST_MOVE';
 export function hideLastMove() {
   return {
-    type: HIDE_PREVIOUS_MOVE
+    type: HIDE_LAST_MOVE
   }
 }

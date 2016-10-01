@@ -17,7 +17,8 @@
     "redux-devtools-log-monitor": "*",
     "redux-devtools-dock-monitor": "*",
     "reselect": "*",
-    "react-inlinesvg": "*"
+    "react-inlinesvg": "*",
+    "randomcolor": "*"
   },
   "scripts": {
     "start": "react-scripts start",

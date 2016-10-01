@@ -5,7 +5,7 @@ import { getActivePlayer } from '../selectors/playerSelectors';
 
 const Cell = ({
   cell, tryPickCell, activePlayerId, lastMove, isEnabled, canRotateQuadrant,
-  isWinningCell, isComputedByAi, showLastMove, animationsEnabled, animationDuration
+  isWinningCell, isComputedByAi, showLastMove, animationsEnabled, animationDuration, fieneMode
 }) => {
   return (
     <span style={ getStyle() } className={ getClassNames() } onClick={ isEnabled ? () => tryPickCell(cell.id, activePlayerId) : null }></span>
@@ -14,10 +14,12 @@ const Cell = ({
   function getClassNames() {
     const classNames = ['cell'];
 
-    if(cell.player) {
+    if(!fieneMode && cell.player) {
       classNames.push(`player-${ cell.player }`);
     } else {
-      classNames.push('empty');
+      if(!cell.color) {
+        classNames.push('empty');
+      }
     }
 
     if(showLastMove && lastMove.cellId === cell.id) {
@@ -36,15 +38,24 @@ const Cell = ({
   }
 
   function getStyle() {
+    const style = {};
+
+
     if(animationsEnabled) {
       const animationDurationInSeconds = animationDuration / 1000;
 
-      return {
+      Object.assign(style, {
         transition: `background-color ${ animationDurationInSeconds }s`
-      }
-    } else {
-      return null;
+      });
     }
+
+    if(fieneMode && cell.color) {
+      Object.assign(style, {
+        backgroundColor: cell.color
+      });
+    }
+
+    return style;
   }
 }
 
@@ -59,6 +70,7 @@ export default connect(
       showLastMove: state.ui.showLastMove,
       animationsEnabled: state.options.animationsEnabled,
       animationDuration: state.options.animationDuration,
+      fieneMode: state.options.fieneMode
   }),
   { tryPickCell }
 )(Cell);

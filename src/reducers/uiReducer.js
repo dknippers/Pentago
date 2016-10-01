@@ -1,9 +1,10 @@
 import { combineReducers } from 'redux';
 import {
   SELECT_QUADRANT, PICK_CELL, ROTATE_QUADRANT, ANIMATE_QUADRANT, PLAYER_WON, BEGIN_TURN,
-  SHOW_LAST_MOVE, HIDE_PREVIOUS_MOVE, RESTART_GAME, TOGGLE_OPTIONS, WINNING_CELLS
+  SHOW_LAST_MOVE, HIDE_LAST_MOVE, RESTART_GAME, TOGGLE_OPTIONS, WINNING_CELLS
 } from '../actions';
 import { COMPUTED_MOVE, HIDE_COMPUTED_MOVE } from '../actions/ai';
+import { COLORS } from '../constants';
 
 function selectedQuadrant(state = {}, action) {
   switch(action.type) {
@@ -64,7 +65,7 @@ function showLastMove(state = false, action){
     case SHOW_LAST_MOVE:
       return true;
 
-    case HIDE_PREVIOUS_MOVE:
+    case HIDE_LAST_MOVE:
       return false;
 
     default: return state;
@@ -106,6 +107,17 @@ function isAnimating(state = false, action) {
   }
 }
 
+function cellColor(state = null, action) {
+  switch(action.type) {
+    case BEGIN_TURN:
+    case ROTATE_QUADRANT:
+      // Pick a new color
+      return COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    default: return state;
+  }
+}
+
 const uiReducer = combineReducers({
   selectedQuadrant,
   winningCells,
@@ -114,7 +126,8 @@ const uiReducer = combineReducers({
   showLastMove,
   showOptions,
   quadrantAnimation,
-  isAnimating
+  isAnimating,
+  cellColor
 });
 
 export default uiReducer;

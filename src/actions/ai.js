@@ -3,7 +3,7 @@ import {
   getQuadrants, getAvailableCells, makeGetRotatedQuadrant,
   getMetadata, getBoardScoreByPlayer, getQuadrantId
 } from '../selectors/cellSelectors';
-import { getActivePlayer, getNextPlayer } from '../selectors/playerSelectors';
+import { getActivePlayer, getNextPlayer, getPlayer, getOtherPlayer } from '../selectors/playerSelectors';
 import { chunk, maxElement, shuffle } from '../helpers';
 import * as Constants from '../constants';
 
@@ -153,12 +153,13 @@ const optimalMovesInOrder = [
   winningMove,
   preventWinningMove,
 
-  makeLine4,
   lineInQuadrant,
   preventLineInQuadrant,
+
+  makeLine4,
   preventMakeLine4,
 
-  setupMultipleLinesInQuadrant,
+  // setupMultipleLinesInQuadrant,
 
   inCenter,
   adjacentToSelf,
@@ -177,18 +178,26 @@ function getBoard(rotation) {
     ));
 }
 
-function makeLine(getState, { b = boards, player = currentPlayer, min = 3, requiresFullQuadrant = false } = {}) {
+function makeLine(getState, {
+  player = currentPlayer,     // Search for a line with the given arguments for this player
+  doAsPlayer = currentPlayer, // This player will actually do the move, and we will do it optimally for this player
+  min = 3,
+  requiresFullQuadrant = false,
+  requiresRotation = true,
+  boardsToConsider = boards,
+  lookahead = true // Look ahead 1 move of rotations
+} = {}) {
   let optimal = {
     score: null,
     cellId: null,
     rotation: null
   }
 
-  for(let board of b) {
-    let rotation = board.rotation;
+  for(let board of boardsToConsider) {
+    const rotation = board.rotation;
 
-    // Only look at rotations
-    // if(!rotation) continue;
+    // Only look at rotations, if required
+    if(!rotation && requiresRotation) continue;
 
     let meta = board.metadata[player.id];
 
@@ -235,13 +244,13 @@ function makeLine(getState, { b = boards, player = currentPlayer, min = 3, requi
         // and possibly the given cell
         const state = Object.assign({}, getState(), {
           cells: Object.assign({}, board.cells, {
-            [emptyCell.id]: Object.assign({}, board.cells[emptyCell.id], { player: player.id })
+            [emptyCell.id]: Object.assign({}, board.cells[emptyCell.id], { player: doAsPlayer.id })
           })
         });
 
         const score = getBoardScoreByPlayer(state);
 
-        return score[player.id];
+        return score[doAsPlayer.id].points;
       });
 
       cell = cells && cells.find(cell => cell.player == null);
@@ -252,20 +261,29 @@ function makeLine(getState, { b = boards, player = currentPlayer, min = 3, requi
       // and possibly the given cell
       const state = Object.assign({}, getState(), {
         cells: Object.assign({}, board.cells, {
-          [cell.id]: Object.assign({}, board.cells[cell.id], { player: player.id })
+          [cell.id]: Object.assign({}, board.cells[cell.id], { player: doAsPlayer.id })
         })
       });
 
-      const score = getBoardScoreByPlayer(state)[player.id];
+      const score = getBoardScoreByPlayer(state)[doAsPlayer.id];
+      const points = score.points;
+      const playerWins = score.wins;
 
-      if(!rotation || (requiresFullQuadrant && cells && cells.length === Constants.QUADRANT_SIZE)) {
-        rotation = optimalRotation(getState, cell.id);
-      }
+      // if(lookahead && !playerWins && player.id === doAsPlayer.id) {
+      //   const boards = getBoards(() => state);
+      //   const opponentWins = winningMove(() => state, { player: getOtherPlayer(doAsPlayer.id)(state), doAsPlayer: getOtherPlayer(doAsPlayer.id)(state), boardsToConsider: boards, lookahead: false });
 
-      if(optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5)) {
+      //   if(opponentWins) {
+      //     // Cancel plans
+      //     console.log("DONT DO IT!");
+      //     continue;
+      //   }
+      // }
+
+      if(optimal.score == null || points > optimal.score || (points === optimal.score && Math.random() > 0.5)) {
         optimal = {
           cellId: cell.id,
-          score,
+          score: points,
           rotation
         }
       }
@@ -280,12 +298,26 @@ function makeLine(getState, { b = boards, player = currentPlayer, min = 3, requi
   }
 }
 
-function winningMove(getState, { player = currentPlayer, b = boards } = {}) {
-  return makeLine(getState, { min: Constants.AMOUNT_IN_LINE_TO_WIN, player, b });
+function winningMove(getState, { player = currentPlayer, boardsToConsider = boards, lookahead = true } = {}) {
+  return makeLine(getState, { min: Constants.AMOUNT_IN_LINE_TO_WIN, player, requiresRotation: false, boardsToConsider, lookahead });
 }
 
 function preventWinningMove(getState) {
-  return preventWithOptimalRotation(winningMove, getState);
+  // First check if the opponent can win without rotating.
+  // If that is the case, we have to block the winning cell
+  // as rotating away can simply be undone by our opponent
+  let { cellId, } = winningMove(getState, { player: nextPlayer, doAsPlayer: currentPlayer, boardsToConsider: boards.filter(board => !board.rotation) }) || {};
+
+  if(cellId == null) {
+    return preventWithOptimalRotation(winningMove, getState);
+  } else {
+    // We found a winning cell to block,
+    // now just find an optimal rotation
+    return {
+      cellId,
+      rotation: optimalRotation(getState, cellId)
+    }
+  }
 }
 
 function makeLine4(getState, { player = currentPlayer } = {}) {
@@ -393,15 +425,13 @@ function setupMultipleLinesInQuadrant(getState, { player = currentPlayer } = {})
 }
 
 function lineInQuadrant(getState, { player = currentPlayer } = {}) {
-  return makeLine3(getState, { player, requiresFullQuadrant: true });
+  return makeLine(getState, { player, requiresFullQuadrant: true });
 }
 
 function preventLineInQuadrant(getState) {
-  return preventWithOptimalRotation(lineInQuadrant, getState);
-}
+  return makeLine(getState, { player: nextPlayer, doAsPlayer: currentPlayer, requiresFullQuadrant: true });
 
-function makeLine3(getState, { player = currentPlayer, requiresFullQuadrant = false } = {}) {
-  return makeLine(getState, { min: 3, player, requiresFullQuadrant });
+  // return preventWithOptimalRotation(lineInQuadrant, getState);
 }
 
 function inCenter(getState, player = currentPlayer.id) {
@@ -414,7 +444,6 @@ function inCenter(getState, player = currentPlayer.id) {
   // preferably horizontally or vertically from
   // on of the other centers that we already have
   // rather than diagonally.
-  // rotateBoard(row, column, clockwise);
 
   // The center is simply the middle cell of each quadrant
   // This assumes the quadrant size is an odd number (obviously)
@@ -464,15 +493,9 @@ function randomCell(getState) {
   }
 }
 
-function moveWithOptimalRotation(getState, moveFunction) {
-  return Object.assign({}, moveFunction(getState), {
-    rotation: optimalRotation(getState)
-  });
-}
-
 function optimalRotation(getState, cellId = null) {
   let optimal = {
-    score: null,
+    points: null,
     rotation: null
   }
 
@@ -490,26 +513,35 @@ function optimalRotation(getState, cellId = null) {
     });
 
     const score = getBoardScoreByPlayer(state)[currentPlayer.id];
+    const points = score.points;
+    const playerWins = score.wins;
 
-    // const boards = getBoards(() => state);
-    // const opponentWins = winningMove(() => state, { player: nextPlayer, boards });
+    if(optimal.points == null || points > optimal.points || (points === optimal.points && Math.random() > 0.5)) {
+      // We are about to replace our optimal rotation
+      // Make sure the opponent cannot win on the next turn
+      // with some move. This only applies to situations where we have are not winning ourselves, obviously
+      // if(!playerWins) {
+      //   const boards = getBoards(() => state);
+      //   const opponentWins = winningMove(() => state, { player: nextPlayer, boardsToConsider: boards });
 
-    // if(opponentWins) {
-    //   console.log(`Cancelling them plans!`);
-    //   // Cancel plans
-    //   continue;
-    // }
+      //   if(opponentWins) {
+      //     // Cancel plans
+      //     continue;
+      //   }
+      // }
 
-    if(score != null && (optimal.score == null || score > optimal.score || (score === optimal.score && Math.random() > 0.5))) {
-      optimal = {
-        score,
-        rotation
-      }
+      // All good
+      optimal = { points, rotation };
     }
   }
 
   if(optimal.rotation) {
     return optimal.rotation;
+  } else {
+    // If all rotations have been dropped because the opponent would win,
+    // we are officially screwed. We would lose anyway, just return a random rotation
+    const boardsWithRotation = boards.filter(board => board.rotation != null);
+    return boardsWithRotation[Math.floor(Math.random() * boardsWithRotation.length)].rotation;
   }
 }
 

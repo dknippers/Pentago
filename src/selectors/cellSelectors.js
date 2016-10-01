@@ -64,12 +64,14 @@ export const getDiagonals = createSelector(
 )
 
 function findWinningCellsInLines(lines, player) {
-  if(!player) return false;
+  if(!player) return null;
 
   for(let line of lines) {
     const winningCells = winsInLine(line, player);
     if(winningCells) return winningCells;
   }
+
+  return null;
 }
 
 export const getWinningCellsByPlayer = createSelector(
@@ -342,7 +344,8 @@ function scoreForPlayer(rows, metadata, player) {
     5: 1000,
     6: 10000,
 
-    fillQuadrantMultiplier: 4
+    fillQuadrantMultiplier: 4,
+    noFriendliesAround: 0.25
   };
 
   const score = {
@@ -351,7 +354,7 @@ function scoreForPlayer(rows, metadata, player) {
   };
 
   // Score for potential cells in a line
-  const keys = Object.keys(metadata[player.id]);
+  const keys = Object.keys(metadata[player.id]).map(k => parseInt(k, 10));
   for(let n of keys) {
     let base = scoreSystemPotentials[n];
 
@@ -375,16 +378,30 @@ function scoreForPlayer(rows, metadata, player) {
         const completesQuadrant = groupOfEmptyCell.length === Constants.QUADRANT_SIZE;
 
         if(completesQuadrant) {
-          multiplier = scoreSystemPotentials.fillQuadrantMultiplier;
+          multiplier *= scoreSystemPotentials.fillQuadrantMultiplier;
+        }
+
+        // If the empty cell is not surrounded by any friendly cells in its quadrant,
+        // impose a big penalty (experimental)
+        const surroundingCells = getSurroundingCells(emptyCell, rows);
+        const quadrantOfEmptyCell = getQuadrantId(emptyCell);
+        if(!surroundingCells.some(cell => getQuadrantId(cell) === quadrantOfEmptyCell && cell.player === player.id)) {
+          multiplier *= scoreSystemPotentials.noFriendliesAround;
         }
       }
 
       score.points += base * multiplier;
+
+      // If n > AMOUNT_TO_WIN, we have actually already won ;)
+      if(n > Constants.AMOUNT_IN_LINE_TO_WIN || (n === Constants.AMOUNT_TO_WIN && !emptyCell)) {
+        score.wins = true;
+      }
     }
   }
 
   // Score for individual cells
   const scoreSystemCells = {
+    none: -1, // Cells at the edge
     opponent: 0,
     empty: 1,
     mine: 4,
@@ -400,13 +417,17 @@ function scoreForPlayer(rows, metadata, player) {
       // Only score my cells
       if(cell.player == null || cell.player !== player.id) continue;
 
-      const cellQuadrantRow = Math.floor(cell.row / Constants.QUADRANT_SIZE);
-      const cellQuadrantCol = Math.floor(cell.col / Constants.QUADRANT_SIZE);
+      const cellQuadrantId = getQuadrantId(cell);
+      const surroundingCells = getSurroundingCells(cell, rows);
 
-      for(let otherCell of getSurroundingCells(cell, rows)) {
-        const isSameQuadrant =  cellQuadrantRow === (Math.floor(otherCell.row / Constants.QUADRANT_SIZE)) &&
-                                cellQuadrantCol === (Math.floor(otherCell.col / Constants.QUADRANT_SIZE));
+      // A cell has at most (QUADRANT_SIZE ^ 2) - 1 surrounding cells
+      // Any missing cell will score scoreSystemCells.none points
+      const missingCells = (Constants.QUADRANT_SIZE * Constants.QUADRANT_SIZE) - surroundingCells.length;
+      score.points += missingCells * scoreSystemCells.none;
 
+      for(let otherCell of surroundingCells) {
+        const otherCellQuadrantId = getQuadrantId(otherCell);
+        const isSameQuadrant = cellQuadrantId === otherCellQuadrantId;
         const multiplier = isSameQuadrant ? scoreSystemCells.sameQuadrantMultiplier : 1;
 
         if(otherCell.player == null) {
@@ -468,19 +489,40 @@ export const getBoardScoreByPlayer = createSelector(
     const playerTwo = players[1];
 
     const playerOnePoints = playerScores[playerOne.id].points;
+    const playerOneWins = playerScores[playerOne.id].wins;
+
     const playerTwoPoints = playerScores[playerTwo.id].points;
+    const playerTwoWins = playerScores[playerTwo.id].wins;
 
     return {
-      [playerOne.id]: playerOnePoints - playerTwoPoints,
-      [playerTwo.id]: playerTwoPoints - playerOnePoints,
-    }
+      [playerOne.id]: {
+        points: playerOnePoints - playerTwoPoints,
+        pointsOne: playerOnePoints,
+        wins: playerOneWins
+      },
+      [playerTwo.id]: {
+        points: playerTwoPoints - playerOnePoints,
+        pointsTwo: playerTwoPoints,
+        wins: playerTwoWins
+      }
+    };
   }
 )
 
 // Yields the ID of the cell's quadrant (0-based index, row to column)
-export const getQuadrantId = cell => {
+export function getQuadrantId(cell) {
   const qRow = Math.floor(cell.row / Constants.QUADRANT_SIZE);
   const qCol = Math.floor(cell.col / Constants.QUADRANT_SIZE);
 
   return qRow * Constants.NUM_QUADRANTS + qCol;
+};
+
+// Yields the Quadrant of the given cellId as { row: ..., column: ... }
+export function getQuadrantRowAndColumn(state, cellId) {
+  const cell = getCell(state, cellId);
+
+  const row = Math.floor(cell.row / Constants.QUADRANT_SIZE);
+  const column = Math.floor(cell.col / Constants.QUADRANT_SIZE);
+
+  return { row, column };
 };

@@ -1,12 +1,13 @@
 import { PICK_CELL, ROTATE_QUADRANT, RESTART_GAME } from '../actions';
 import { byId } from '../helpers';
+import { BOARD_SIZE } from '../constants';
 import { makeGetRotatedQuadrant } from '../selectors/cellSelectors';
 
 let cellId = 0;
 
 const allCells = [];
-for(let row = 0; row < 6; row++) {
-	for(let col = 0; col < 6; col++) {
+for(let row = 0; row < BOARD_SIZE; row++) {
+	for(let col = 0; col < BOARD_SIZE; col++) {
 		allCells.push({
 			id: cellId++,
 			row: row,
@@ -20,7 +21,7 @@ export const initialState = byId(allCells);
 function cells(state = initialState, action) {
 	switch(action.type) {
     case PICK_CELL:
-      const { cellId } = action;
+      const { cellId, color } = action;
       const cell = state[cellId];
 
       if(cell.player != null) {
@@ -29,7 +30,8 @@ function cells(state = initialState, action) {
 
       return Object.assign({}, state, {
         [cell.id]: Object.assign({}, cell, {
-          player: action.playerId
+          player: action.playerId,
+          color
         })
       });
 

@@ -7,7 +7,7 @@ import StatusMessage from './StatusMessage';
 import Options from './Options';
 import Score from './Score';
 
-const Game = ({ activePlayerId, gameOver, score, boardScores }) => {
+const Game = ({ activePlayerId, gameOver, score, boardScores, fieneMode }) => {
   return (
     <div className={ getClassNames() }>
       <div className="column-center">
@@ -15,6 +15,11 @@ const Game = ({ activePlayerId, gameOver, score, boardScores }) => {
         <Board />
         <Score />
 
+        {
+        // <pre style={ { textAlign: 'left', fontSize: '12pt', position: 'absolute', left: '15%' }  }>
+        //   { JSON.stringify(boardScores, null, 4) }
+        // </pre>
+        }
 
         <Controls />
         <ErrorMessage />
@@ -30,7 +35,7 @@ const Game = ({ activePlayerId, gameOver, score, boardScores }) => {
       classNames.push('game-over');
     }
 
-    if(activePlayerId) {
+    if(!fieneMode && activePlayerId) {
       classNames.push(`player-${ activePlayerId }`);
     }
 
@@ -43,6 +48,7 @@ export default connect(
     activePlayerId: state.activePlayer,
     gameOver: state.gameOver,
     score: state.ui.score,
-    boardScores: state.scores
+    boardScores: state.scores,
+    fieneMode: state.options.fieneMode
   })
 )(Game);
