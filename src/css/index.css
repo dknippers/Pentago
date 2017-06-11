@@ -136,8 +136,8 @@ button.btn:disabled:hover {
   flex: 1 0 auto;
   flex-direction: row;
   flex-wrap: wrap;
-  max-width: calc(31vmin);
-  max-height: calc(31vmin);
+  max-width: calc(46.5vmin);
+  max-height: calc(46.5vmin);
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 @media screen and (orientation: landscape) {

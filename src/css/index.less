@@ -1,6 +1,9 @@
 @p1-color: #cc0000;
 @p2-color: #3465a4;
 
+@cell-size: 15vmin;
+@cell-size-landscape: 10vh;
+
 * {
   box-sizing: border-box;
 }
@@ -152,14 +155,14 @@ button.btn {
   flex: 1 0 auto;
   flex-direction: row;
   flex-wrap: wrap;
-  max-width:  calc(2 * (15vmin + 0.5vmin));
-  max-height: calc(2 * (15vmin + 0.5vmin));
+  max-width:  calc(3 * (@cell-size + 0.5vmin));
+  max-height: calc(3 * (@cell-size + 0.5vmin));
 
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
   @media screen and (orientation: landscape) {
-    max-width:  calc(3 * (10vh + 0.5vmin));
-    max-height: calc(3 * (10vh + 0.5vmin));
+    max-width:  calc(3 * (@cell-size-landscape + 0.5vmin));
+    max-height: calc(3 * (@cell-size-landscape + 0.5vmin));
   }
 
   .arrows {
@@ -236,12 +239,12 @@ button.btn {
 
 .board {
   flex: 3 3;
-  max-width: calc(6 * (15vmin + 0.5vmin) + 2vmin);
-  max-height: calc(6 * (15vmin + 0.5vmin) + 2vmin);
+  max-width: calc(6 * (@cell-size + 0.5vmin) + 2vmin);
+  max-height: calc(6 * (@cell-size + 0.5vmin) + 2vmin);
 
   @media screen and (orientation: landscape) {
-    max-width: calc(6 * (10vh + 0.5vmin) + 2vmin);
-    max-height: calc(6 * (10vh + 0.5vmin) + 2vmin);
+    max-width: calc(6 * (@cell-size-landscape + 0.5vmin) + 2vmin);
+    max-height: calc(6 * (@cell-size-landscape + 0.5vmin) + 2vmin);
   }
 
   flex-direction: row;
@@ -286,13 +289,13 @@ button.btn {
   margin: 0.25vmin;
   border-radius: 5%;
   flex: 1 0 auto;
-  width: 15vmin;
-  height: 15vmin;
+  width: @cell-size;
+  height: @cell-size;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
   @media screen and (orientation: landscape) {
-    width: 10vh;
-    height: 10vh;
+    width: @cell-size-landscape;
+    height: @cell-size-landscape;
   }
 
   border-style: solid;
