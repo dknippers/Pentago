@@ -1,3 +1,3 @@
-export * from './options';
-export * from './game';
-export * from './localStorage';
+export * from "./options";
+export * from "./game";
+export * from "./localStorage";

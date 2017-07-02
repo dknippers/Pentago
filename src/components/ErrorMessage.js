@@ -1,14 +1,14 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React from "react";
+import { connect } from "react-redux";
 
 const ErrorMessage = ({ error }) => {
-  if(!error) return null;
+    if (!error) return null;
 
-  return (
-    <div className="error">{ error }</div>
-  );
-}
+    return (
+        <div className="error">
+            {error}
+        </div>
+    );
+};
 
-export default connect(
-  state => ({ error: state.error })
-)(ErrorMessage);
+export default connect(state => ({ error: state.error }))(ErrorMessage);

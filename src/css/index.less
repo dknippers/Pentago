@@ -5,13 +5,13 @@
 @cell-size-landscape: 10vh;
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 html {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
 }
 
 body {
@@ -23,364 +23,433 @@ body {
 }
 
 .game {
-  display: flex;
-  text-align: center;
-  overflow-y: auto;
-  overflow-x: hidden;
+    display: flex;
+    text-align: center;
+    overflow-y: auto;
+    overflow-x: hidden;
 
-  img.fiene { margin: 3vh; }
-
-  &.game-over {
-     .cell, .cell:hover {
-      opacity: 0.25;
-    }
-  }
-
-  &.player-1 {
-    .board.enable-quadrants {
-      .quadrant:hover { outline: 4px solid @p1-color; }
-
-      @media (pointer: coarse) {
-        .quadrant:hover { outline: none; }
-      }
-
-      .quadrant.selected { outline: 4px solid @p1-color; }
+    img.fiene {
+        margin: 3vh;
     }
 
-    .cell.empty {
-      &:hover { background-color: @p1-color; }
-
-      &.ai-preview { border-color: @p1-color; }
-    }
-  }
-
-  &.player-2 {
-    .board.enable-quadrants {
-      .quadrant:hover { outline: 4px solid @p2-color; }
-
-      @media (pointer: coarse) {
-        .quadrant:hover { outline: none; }
-      }
-
-      .quadrant.selected { outline: 4px solid @p2-color; }
+    &.game-over {
+        .cell,
+        .cell:hover {
+            opacity: 0.25;
+        }
     }
 
-    .cell.empty {
-      &:hover { background-color: @p2-color; }
+    &.player-1 {
+        .board.enable-quadrants {
+            .quadrant:hover {
+                outline: 4px solid @p1-color;
+            }
 
-      &.ai-preview { border-color: @p2-color; }
+            @media (pointer: coarse) {
+                .quadrant:hover {
+                    outline: none;
+                }
+            }
+
+            .quadrant.selected {
+                outline: 4px solid @p1-color;
+            }
+        }
+
+        .cell.empty {
+            &:hover {
+                background-color: @p1-color;
+            }
+
+            &.ai-preview {
+                border-color: @p1-color;
+            }
+        }
     }
-  }
+
+    &.player-2 {
+        .board.enable-quadrants {
+            .quadrant:hover {
+                outline: 4px solid @p2-color;
+            }
+
+            @media (pointer: coarse) {
+                .quadrant:hover {
+                    outline: none;
+                }
+            }
+
+            .quadrant.selected {
+                outline: 4px solid @p2-color;
+            }
+        }
+
+        .cell.empty {
+            &:hover {
+                background-color: @p2-color;
+            }
+
+            &.ai-preview {
+                border-color: @p2-color;
+            }
+        }
+    }
 }
 
 h2 {
-  @media screen and (max-width: 400px) {
-    font-size: 1.1em;
-    margin: 0.75em 0;
-  }
+    @media screen and (max-width: 400px) {
+        font-size: 1.1em;
+        margin: 0.75em 0;
+    }
 }
 
 h3 {
-  @media screen and (max-width: 400px) {
-    font-size: 0.85em;
-    margin: 0.75em 0;
-  }
+    @media screen and (max-width: 400px) {
+        font-size: 0.85em;
+        margin: 0.75em 0;
+    }
 }
 
 .controls {
-  padding: 1.5vw 0;
+    padding: 1.5vw 0;
 
-  .buttons {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-  }
+    .buttons {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+    }
 }
 
 button.btn {
-  width: 48vw;
-  max-width: 200px;
-  height: 6vh;
-  min-height: 25px;
-  color: white;
-  font-family: inherit;
-  font-size: 14px;
-  background-color: #2e3436;
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    width: 48vw;
+    max-width: 200px;
+    height: 6vh;
+    min-height: 25px;
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+    background-color: #2e3436;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
-  &:focus { outline: none; }
-
-  &:hover {
-    cursor: pointer;
-    filter: invert(100%);
-  }
-
-  &:disabled {
-    &:hover {
-      filter: none;
-      cursor: not-allowed;
+    &:focus {
+        outline: none;
     }
-    color: gray;
-  }
 
-  @media screen and (max-width: 400px) {
-    font-size: 12px;
-  }
+    &:hover {
+        cursor: pointer;
+        filter: invert(100%);
+    }
 
-  @media (pointer: coarse) {
-     &:hover { filter: none; }
-  }
+    &:disabled {
+        &:hover {
+            filter: none;
+            cursor: not-allowed;
+        }
+        color: gray;
+    }
+
+    @media screen and (max-width: 400px) {
+        font-size: 12px;
+    }
+
+    @media (pointer: coarse) {
+        &:hover {
+            filter: none;
+        }
+    }
 }
 
 .column-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  justify-content: center;
-  min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+    min-height: 100vh;
 }
 
 .error {
-  padding: 5vmin;
-  background-color: #eeeeec;
-  color: #cc0000;
-  font-weight: bold;
+    padding: 5vmin;
+    background-color: #eeeeec;
+    color: #cc0000;
+    font-weight: bold;
 }
 
 .quadrant {
-  position: relative;
-  margin: 0.5vmin;
-  display: flex;
-  flex: 1 0 auto;
-  flex-direction: row;
-  flex-wrap: wrap;
-  max-width:  calc(3 * (@cell-size + 0.5vmin));
-  max-height: calc(3 * (@cell-size + 0.5vmin));
-
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-
-  @media screen and (orientation: landscape) {
-    max-width:  calc(3 * (@cell-size-landscape + 0.5vmin));
-    max-height: calc(3 * (@cell-size-landscape + 0.5vmin));
-  }
-
-  .arrows {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
+    position: relative;
+    margin: 0.5vmin;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: -1;
-  }
+    flex: 1 0 auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: calc(3 * (@cell-size + 0.5vmin));
+    max-height: calc(3 * (@cell-size + 0.5vmin));
 
-  &.selected .arrows, &.show-last-move .arrows, &.ai-preview .arrows {
-    z-index: 1;
-  }
-
-  &.selected .arrow, .arrow.ai-preview, .arrow.last-rotation {
-    svg { display: block; }
-  }
-
-  &.animating .arrow { display: none; }
-
-  .arrow {
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
-    &.counter-clockwise { order: 1; }
-    &.clockwise { order: 2; }
-
-    &.player-1 svg:hover { fill: @p1-color; }
-    &.player-2 svg:hover { fill: @p2-color; }
-
-    svg {
-      display: none;
-      fill: #eeeeec;
-      stroke-width: 10px;
-      stroke: #eeeeec;
-      opacity: 0.5;
-      width: 80%;
-      height: 80%;
-
-      &:hover {
-        opacity: 1;
-        cursor: pointer;
-      }
+    @media screen and (orientation: landscape) {
+        max-width: calc(3 * (@cell-size-landscape + 0.5vmin));
+        max-height: calc(3 * (@cell-size-landscape + 0.5vmin));
     }
 
-    &.ai-preview {
-      svg { opacity: 1; }
-
-      &.player-1 svg { fill: @p1-color; }
-      &.player-2 svg { fill: @p2-color; }
+    .arrows {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: -1;
     }
 
-    &.last-rotation {
-      svg { opacity: 1; }
-
-      &.player-1 {
-        svg, svg:hover { fill: @p2-color; }
-      }
-
-      &.player-2 {
-        svg, svg:hover { fill: @p1-color; }
-      }
+    &.selected .arrows,
+    &.show-last-move .arrows,
+    &.ai-preview .arrows {
+        z-index: 1;
     }
-  }
+
+    &.selected .arrow,
+    .arrow.ai-preview,
+    .arrow.last-rotation {
+        svg {
+            display: block;
+        }
+    }
+
+    &.animating .arrow {
+        display: none;
+    }
+
+    .arrow {
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+
+        &.counter-clockwise {
+            order: 1;
+        }
+        &.clockwise {
+            order: 2;
+        }
+
+        &.player-1 svg:hover {
+            fill: @p1-color;
+        }
+        &.player-2 svg:hover {
+            fill: @p2-color;
+        }
+
+        svg {
+            display: none;
+            fill: #eeeeec;
+            stroke-width: 10px;
+            stroke: #eeeeec;
+            opacity: 0.5;
+            width: 80%;
+            height: 80%;
+
+            &:hover {
+                opacity: 1;
+                cursor: pointer;
+            }
+        }
+
+        &.ai-preview {
+            svg {
+                opacity: 1;
+            }
+
+            &.player-1 svg {
+                fill: @p1-color;
+            }
+            &.player-2 svg {
+                fill: @p2-color;
+            }
+        }
+
+        &.last-rotation {
+            svg {
+                opacity: 1;
+            }
+
+            &.player-1 {
+                svg,
+                svg:hover {
+                    fill: @p2-color;
+                }
+            }
+
+            &.player-2 {
+                svg,
+                svg:hover {
+                    fill: @p1-color;
+                }
+            }
+        }
+    }
 }
 
 .board {
-  flex: 3 3;
-  max-width: calc(6 * (@cell-size + 0.5vmin) + 2vmin);
-  max-height: calc(6 * (@cell-size + 0.5vmin) + 2vmin);
+    flex: 3 3;
+    max-width: calc(6 * (@cell-size + 0.5vmin) + 2vmin);
+    max-height: calc(6 * (@cell-size + 0.5vmin) + 2vmin);
 
-  @media screen and (orientation: landscape) {
-    max-width: calc(6 * (@cell-size-landscape + 0.5vmin) + 2vmin);
-    max-height: calc(6 * (@cell-size-landscape + 0.5vmin) + 2vmin);
-  }
-
-  flex-direction: row;
-  flex-wrap: wrap;
-  display: flex;
-  margin: 1.5vw 0;
-
-  &.disable-cells {
-    .cell {
-      pointer-events: none;
-
-      &.winning {
-        opacity: 1;
-      }
+    @media screen and (orientation: landscape) {
+        max-width: calc(6 * (@cell-size-landscape + 0.5vmin) + 2vmin);
+        max-height: calc(6 * (@cell-size-landscape + 0.5vmin) + 2vmin);
     }
-  }
 
-  &.show-last-move {
-    .cell {
-      opacity: 0.25;
+    flex-direction: row;
+    flex-wrap: wrap;
+    display: flex;
+    margin: 1.5vw 0;
 
-      &.last-move {
-        opacity: 1;
-      }
+    &.disable-cells {
+        .cell {
+            pointer-events: none;
+
+            &.winning {
+                opacity: 1;
+            }
+        }
     }
-  }
 
-  &.enable-quadrants {
-    .quadrant {
-      &:hover { cursor: pointer; }
+    &.show-last-move {
+        .cell {
+            opacity: 0.25;
+
+            &.last-move {
+                opacity: 1;
+            }
+        }
     }
-  }
+
+    &.enable-quadrants {
+        .quadrant {
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
 }
 
 .row {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
 
 .cell {
-  margin: 0.25vmin;
-  border-radius: 5%;
-  flex: 1 0 auto;
-  width: @cell-size;
-  height: @cell-size;
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    margin: 0.25vmin;
+    border-radius: 5%;
+    flex: 1 0 auto;
+    width: @cell-size;
+    height: @cell-size;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 
-  @media screen and (orientation: landscape) {
-    width: @cell-size-landscape;
-    height: @cell-size-landscape;
-  }
-
-  border-style: solid;
-  border-width: 0.1vmin;
-  border-color: transparent;
-
-  &.player-1 { background-color: @p1-color; }
-  &.player-2 { background-color: @p2-color; }
-
-  &.empty {
-    border-color: #888a85;
-    background-color: transparent;
-
-    &:hover {
-      cursor: pointer;
-      opacity: 0.5;
-      box-shadow: 0 0 0 2px #eeeeec;
+    @media screen and (orientation: landscape) {
+        width: @cell-size-landscape;
+        height: @cell-size-landscape;
     }
 
-    &.ai-preview {
-      border-width: 4px;
-      border-style: solid;
+    border-style: solid;
+    border-width: 0.1vmin;
+    border-color: transparent;
+
+    &.player-1 {
+        background-color: @p1-color;
     }
-  }
+    &.player-2 {
+        background-color: @p2-color;
+    }
 
-  &.last-move {
-      box-shadow: 0 0 0 2px #eeeeec;
-  }
+    &.empty {
+        border-color: #888a85;
+        background-color: transparent;
 
-  & > img {
-    max-width: 60%;
-    vertical-align: bottom;
-  }
+        &:hover {
+            cursor: pointer;
+            opacity: 0.5;
+            box-shadow: 0 0 0 2px #eeeeec;
+        }
+
+        &.ai-preview {
+            border-width: 4px;
+            border-style: solid;
+        }
+    }
+
+    &.last-move {
+        box-shadow: 0 0 0 2px #eeeeec;
+    }
+
+    & > img {
+        max-width: 60%;
+        vertical-align: bottom;
+    }
 }
 
 .options {
-  display: none;
-  flex-direction: column;
-  z-index: 3;
-  opacity: 0.95;
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #2e3436;
-  align-items: center;
-  justify-content: center;
+    display: none;
+    flex-direction: column;
+    z-index: 3;
+    opacity: 0.95;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #2e3436;
+    align-items: center;
+    justify-content: center;
 
-  hr { width: 100%; }
-
-  .option-columns {
-    display: flex;
-    max-width: 95vw;
-    margin-bottom: 5vh;
-
-    .option-column {
-      display: flex;
-      flex-direction: column;
-      text-align: right;
-      font-size: 14px;
-      max-width: 48vw;
-
-      @media screen and (max-width: 400px) {
-        font-size: 12px;
-      }
-
-      > * {
-        user-select: none;
-        margin: 1vh;
-        height: 3vh;
-        min-height: 20px;
-      }
-
-      > input[type="checkbox"] {
-        transform: scale(1.25);
-      }
+    hr {
+        width: 100%;
     }
-  }
 
-  &.visible {
-    display: flex;
-  }
+    .option-columns {
+        display: flex;
+        max-width: 95vw;
+        margin-bottom: 5vh;
 
-  input[type="checkbox"], button, label {
-    &:hover { cursor: pointer; }
-  }
+        .option-column {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+            font-size: 14px;
+            max-width: 48vw;
+
+            @media screen and (max-width: 400px) {
+                font-size: 12px;
+            }
+
+            > * {
+                user-select: none;
+                margin: 1vh;
+                height: 3vh;
+                min-height: 20px;
+            }
+
+            > input[type="checkbox"] {
+                transform: scale(1.25);
+            }
+        }
+    }
+
+    &.visible {
+        display: flex;
+    }
+
+    input[type="checkbox"],
+    button,
+    label {
+        &:hover {
+            cursor: pointer;
+        }
+    }
 }
