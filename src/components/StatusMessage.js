@@ -17,7 +17,7 @@ const StatusMessage = ({
 
     if (fieneMode) {
         if (!gameOver) {
-            return <img className="fiene" src={fiene} />;
+            return <img className="fiene" src={fiene} alt="Fiene" />;
         } else {
             return <h2>Afgelopen!</h2>;
         }

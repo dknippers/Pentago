@@ -26,7 +26,7 @@ export function tryPickCell(cellId, playerId) {
         // instead we simply rotate the quadrant of the cell in a random direction
         if (getState().options.fieneMode) {
             const { row, column } = getQuadrantRowAndColumn(getState(), cellId);
-            dispatch(animateQuadrant(row, column, cellId % 2 == 0));
+            dispatch(animateQuadrant(row, column, cellId % 2 === 0));
         }
 
         // Score

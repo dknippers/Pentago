@@ -44,6 +44,7 @@ export default (state = initialState, action) => {
 
                 return newState;
             }
+            break;
 
         default:
             return state;
