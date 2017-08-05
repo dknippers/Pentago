@@ -440,7 +440,7 @@ function scoreForPlayer(rows, metadata, player) {
             // If n > AMOUNT_TO_WIN, we have actually already won ;)
             if (
                 n > Constants.AMOUNT_IN_LINE_TO_WIN ||
-                (n === Constants.AMOUNT_TO_WIN && !emptyCell)
+                (n === Constants.AMOUNT_IN_LINE_TO_WIN && !emptyCell)
             ) {
                 score.wins = true;
             }
