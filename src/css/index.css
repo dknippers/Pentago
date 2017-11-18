@@ -266,7 +266,7 @@ button.btn:disabled:hover {
   height: 15vmin;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   border-style: solid;
-  border-width: 0.1vmin;
+  border-width: 0.2vmin;
   border-color: transparent;
 }
 @media screen and (orientation: landscape) {

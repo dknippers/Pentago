@@ -15,5 +15,5 @@ ReactDOM.render(
     document.getElementById("root")
 );
 
-// This only works on secure origins (e.g., not http://)
+// This only works on secure origins (i.e., not http://)
 // registerServiceWorker();
