@@ -7,8 +7,6 @@ export const NUM_QUADRANTS = Math.floor(BOARD_SIZE / QUADRANT_SIZE, 10);
 
 const colors = [];
 const hues = ["red", "orange", "yellow", "green", "blue", "purple", "pink"];
-for (const hue of hues) {
-    colors.push(randomColor({ hue, luminosity: "bright" }));
-}
+hues.forEach(hue => colors.push(randomColor({ hue, luminosity: "bright" })));
 
 export const COLORS = colors;
