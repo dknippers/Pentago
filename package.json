@@ -1,7 +1,7 @@
 {
     "name": "pentago-fiber",
     "version": "0.1.0",
-    "homepage": "/pentago",
+    "homepage": "/",
     "private": true,
     "dependencies": {
         "randomcolor": "^0.5.3",
