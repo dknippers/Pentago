@@ -1,6 +1,9 @@
 import React from "react";
+import SVG from 'react-inlinesvg';
+import clockwiseArrow from "../svg/clockwise.svg";
+import counterClockwiseArrow from "../svg/counter-clockwise.svg";
 
-export const makeArrow = (
+const Arrow = ({
     row,
     column,
     clockwise,
@@ -11,18 +14,17 @@ export const makeArrow = (
     lastRotation,
     showLastMove,
     isSelected,
-    animationsEnabled
-) => ({ dangerouslySetInnerHTML, className }) => {
-    if (!dangerouslySetInnerHTML) return null;
-
+    animationsEnabled,
+    className,
+    src,
+}) => {
     return (
         <span
-            {...{
-                dangerouslySetInnerHTML,
-                className: getClassNames(),
-                onClick: rotate
-            }}
-        />
+            className={getClassNames()}
+            onClick={rotate}
+        >
+            <SVG src={clockwise ? clockwiseArrow : counterClockwiseArrow}></SVG>
+        </span>
     );
 
     function rotate(e) {
@@ -68,3 +70,5 @@ export const makeArrow = (
         );
     }
 };
+
+export default Arrow;

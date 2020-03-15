@@ -1,5 +1,5 @@
-import "core-js/es6/symbol";
-import "core-js/fn/array/find";
-import "core-js/fn/array/from";
-import "core-js/fn/array/find-index";
-import "core-js/fn/array/iterator";
+import "core-js/es/symbol";
+import "core-js/features/array/find";
+import "core-js/features/array/from";
+import "core-js/features/array/find-index";
+import "core-js/features/array/iterator";

@@ -1,11 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import Cell from "../components/Cell";
+import Cell from "./Cell";
 import { rotateQuadrant, animateQuadrant, selectQuadrant } from "../actions";
-import clockwise from "../svg/clockwise.svg";
-import counterClockwise from "../svg/counter-clockwise.svg";
-import Isvg from "react-inlinesvg";
-import { makeArrow } from "./Arrow";
+import Arrow from "./Arrow";
 
 const Quadrant = ({
     quadrant,
@@ -23,7 +20,7 @@ const Quadrant = ({
     showLastMove,
     quadrantAnimation,
     animationsEnabled,
-    animationDuration
+    animationDuration,
 }) => {
     return (
         <div className={getClassNames()} style={getStyle()} onClick={onClick}>
@@ -32,14 +29,8 @@ const Quadrant = ({
             )}
 
             <div className="arrows">
-                <Isvg
-                    wrapper={makeArrow.apply(null, getArrowParams(true))}
-                    src={clockwise}
-                />
-                <Isvg
-                    wrapper={makeArrow.apply(null, getArrowParams(false))}
-                    src={counterClockwise}
-                />
+                <Arrow {...getArrowParams(true)} />
+                <Arrow {...getArrowParams(false)} />
             </div>
         </div>
     );
@@ -65,7 +56,7 @@ const Quadrant = ({
     }
 
     function getArrowParams(clockwise) {
-        return [
+        return {
             row,
             column,
             clockwise,
@@ -76,8 +67,9 @@ const Quadrant = ({
             lastRotation,
             showLastMove,
             isSelected,
-            animationsEnabled
-        ];
+            animationsEnabled,
+            activePlayerId,
+        };
     }
 
     function getClassNames() {
